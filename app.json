@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Greenlight Dining",
+    "description": "A very interesting project.",
+    "slug": "greenlight-dining",
+    "privacy": "public",
+    "sdkVersion": "29.0.0",
+    "platforms": ["ios", "android"],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.a2zCreative.greenlight",
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey":"AIzaSyBDQnrAQzneJc7RsZ2cUs33vMsyqHEMtlA"
+      }
+    },
+    "android": {
+      "package": "com.a2zCreative.greenlight"
+    }
+  }
+}

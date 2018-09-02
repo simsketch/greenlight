@@ -6,30 +6,59 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   TouchableHighlight
 } from 'react-native';
 import { WebBrowser } from 'expo';
 import { tintColor } from '../constants/Colors.js';
+import { Hoshi } from 'react-native-textinput-effects';
+import { Dropdown } from 'react-native-material-dropdown';
+import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
 
-export default class HomeScreen extends React.Component {
+export class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
   }
-    state = {
-        usernameInput: "Email Address",
-        passwordInput: "Password",
-        loginTitle: "Let\'s Eat"
-    };
-  static navigationOptions = {
-    header: null,
+  state = {
+      videoURI: Expo.Asset.fromModule(require('../assets/videos/food.mp4')).uri,
+      // gifURI: Expo.Asset.fromModule(require('../assets/videos/food.gif')).uri,
+      loginTitle: "Let\'s Eat",
   };
-
+  welcomeMessage() {
+      return (
+        <Text style={styles.developmentModeText}>
+        Find a table NOW!
+      </Text>
+      )
+  }
+  buzzWords() {
+      return (
+          <Text style={styles.buzzWords}>
+            EAT NOW &amp; SAVE 10%{"\n"}
+            VIP DINING{"\n"}
+            SAVE TIME &amp; MONEY{"\n"}
+          </Text>
+      )
+  }
   render() {
     return (
-      <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
+      <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+        {/* <Video
+          source={{ uri: this.state.videoURI }}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="cover"
+          shouldPlay
+          isLooping
+          style={{ width: '100%', height: '100%' }}
+        /> */}
+        <Image
+          source={{ uri: 'http://teragigame.ga/greenlight/food.jpg' }}
+          style={{ width: '100%', height: '100%' }}
+        />
+        <ScrollView style={styles.overlay}>
+          <View style={styles.overlayText}>
+          {this.buzzWords()}
             <Image
               source={
                 __DEV__
@@ -38,59 +67,22 @@ export default class HomeScreen extends React.Component {
               }
               style={styles.welcomeImage}
             />
-          </View>
-          <View style={styles.getStartedContainer}>
             {this.welcomeMessage()}
-
-            <Text style={styles.getStartedText}>Get started by {this.signupButton()} or if you already have an account you can {this.loginButton()}.</Text>
-          </View>
-          <View>
-          <Button
-          title={this.state.loginTitle}
-          onPress={console.log('button pressed!')}
-          ></Button>
-          </View>
+            <Button
+              title="Sign Up"
+              backgroundColor="#00E676"
+              onPress={() => this.props.navigation.navigate('SignUp')}
+            />
+            <Button
+              title="Login"
+              backgroundColor="#39A675"
+              onPress={() => this.props.navigation.navigate('Login')}
+            />
+            </View>
         </ScrollView>
       </View>
-    );
+    )
   }
-  welcomeMessage() {
-      return (
-        <Text style={styles.developmentModeText}>
-        Greenlight &mdash; find a table NOW!
-      </Text>
-      )
-  }
-  signupButton() {
-    const signupButton = (
-        <Text onPress={this._handleSignUpPress} style={styles.helpLinkText}>
-        signing up
-        </Text>
-    );
-      return (
-      <Text style={styles.developmentModeText}>
-        {signupButton}
-      </Text>
-      )
-  }
-  loginButton() {
-    const loginButton = (
-        <Text onPress={this._handleLoginPress} style={styles.helpLinkText}>
-        login
-        </Text>
-    );
-      return (
-      <Text style={styles.developmentModeText}>
-        {loginButton}
-      </Text>
-      )
-  }
-  _handleSignUpPress = () => {
-    WebBrowser.openBrowserAsync('https://placeholder.com/300x300?text=greenlight.app/signup');
-  };
-  _handleLoginPress = () => {
-    WebBrowser.openBrowserAsync('https://placeholder.com/300x300?text=greenlight.app/login');
-  };
 }
 
 const styles = StyleSheet.create({
@@ -108,17 +100,32 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: 30,
   },
+  buzzWords: {
+    fontSize: 20,
+    fontWeight:'bold',
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  overlayText: {
+    paddingHorizontal: 20,
+    marginTop: 135,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
   welcomeContainer: {
     alignItems: 'center',
     marginTop: 180,
     marginBottom: 20,
   },
   welcomeImage: {
-    width: 100,
-    height: 80,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
-    marginTop: 3,
+    marginTop: -3,
     marginLeft: -10,
+    alignSelf:'center',
   },
   getStartedContainer: {
     alignItems: 'center',

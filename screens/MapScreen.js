@@ -5,22 +5,18 @@ import {
   View
 } from 'react-native';
 
-export default class MapScreen extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  state = {
-      isMapShowing: true
-  };
-  static navigationOptions = {
-    header: null,
-  };
-
+export class MapScreen extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-      <Text>Map</Text>
-      </View>
+      <MapView
+      style={{ flex: 1 }}
+      initialRegion={{
+        latitude: 26.584162,
+        longitude: -80.048381,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
+    />
     );
   }
 }

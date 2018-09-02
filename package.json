@@ -1,5 +1,5 @@
 {
-  "name": "my-new-project",
+  "name": "greenlight-dining",
   "main": "node_modules/expo/AppEntry.js",
   "private": true,
   "scripts": {
@@ -14,15 +14,17 @@
   },
   "dependencies": {
     "@expo/samples": "2.1.1",
+    "axios": "^0.18.0",
     "expo": "29.0.0",
-    "native-base": "^2.7.2",
+    "native-base": "^2.8.0",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz",
     "react-native-app-intro-slider": "^1.0.1",
     "react-native-elements": "^0.19.1",
     "react-native-material-dropdown": "^0.11.1",
     "react-native-textinput-effects": "^0.4.2",
-    "react-navigation": "^2.9.3"
+    "react-navigation": "^2.9.3",
+    "react-number-format": "^3.5.1"
   },
   "devDependencies": {
     "jest-expo": "29.0.0"

@@ -5,21 +5,17 @@ import {
   View
 } from 'react-native';
 
-export default class ReviewScreen extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  state = {
-      isMapShowing: true
-  };
-  static navigationOptions = {
-    header: null,
-  };
-
+export class ReviewScreen extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-      <Text>Review</Text>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text>Leave a review (coming soon)</Text>
+        <Button
+          title="Start Over"
+          buttonStyle={{width:'100%',marginTop:10}}
+          backgroundColor="#39A675"
+          onPress={() => this.props.navigation.navigate('Home')}
+        />
       </View>
     );
   }

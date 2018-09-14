@@ -4,31 +4,40 @@ import {
   Text,
   View,
   Image,
-  Alert
+  Alert, CameraRoll
 } from 'react-native';
-import { WebBrowser, MapView, Video, Haptic, takeSnapshotAsync } from 'expo';
+import { WebBrowser, MapView, Video, Haptic } from 'expo';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
 
 export class SuccessScreen extends React.Component {
+  static navigationOptions = {
+    headerLeft: (
+      <Text
+        onPress={() => alert('This is a button!')}
+        title="Cancel"
+        color="#000"
+      />
+    ),
+  };
   constructor(props) {
     super(props);
   }
   state = {
-    vendorCode: Math.floor(Math.random()*16777215).toString(16).toUpperCase(),
     cameraRollUri: null,
   }
   _getDirections = () => {
     WebBrowser.openBrowserAsync('https://www.google.com/maps/dir//Sushi+Bon+Express+Inc,+304+E+Ocean+Ave,+Lantana,+FL+33462/@26.584162,-80.048381,15z/data=!4m8!4m7!1m0!1m5!1m1!1s0x88d8d9014646ca21:0xa6d2d255fb7d4b0d!2m2!1d-80.048381!2d26.584162');
   };
-  _saveToCameraRollAsync = async () => {
-    let result = await takeSnapshotAsync(this._container, {
-      format: 'png',
-      result: 'file',
-    });
+  // _saveToCameraRollAsync = async () => {
+  //   let result = await takeSnapshotAsync(this._container, {
+  //     format: 'png',
+  //     result: 'file',
+  //   });
 
-    let saveResult = await CameraRoll.saveToCameraRoll(result, 'photo');
-    this.setState({ cameraRollUri: saveResult });
-  };
+  //   let saveResult = await CameraRoll.saveToCameraRoll(result, 'photo');
+  //   alert(JSON.stringify(saveResult));
+  //   this.setState({ cameraRollUri: saveResult });
+  // };
   _cancelTable = () => {
     Alert.alert(
       'Cancel table?',
@@ -44,6 +53,8 @@ export class SuccessScreen extends React.Component {
     //this.props.navigation.navigate('Vendor');
   };
   render() {
+    const { navigation } = this.props;
+    const promoCode = navigation.getParam('promoCode', 'PROMOCODE5');
     Haptic.notification(Haptic.NotificationTypes.Success);
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -63,9 +74,9 @@ export class SuccessScreen extends React.Component {
         />
         <View style={styles.overlay}>
           <View style={styles.overlayText}>
-          <Text style={{ textAlign: 'center', color: '#fff', backgroundColor:'#333', padding:10 }}>
-          Thank you for choosing the GreenLight Dining App.{"\n"}Your table and 10% discount are waiting for you.{"\n"}Please provide this confirmation code upon your arrival. </Text>
-          <Text selectable style={{fontSize:48,fontWeight:'bold',textAlign:'center',backgroundColor:'#fff',width:'100%',marginTop:10}}>{this.state.vendorCode}</Text>
+          <Text style={{ fontSize:14, textAlign: 'center', color: '#fff', backgroundColor:'#333', padding:10 }}>
+          Thank you for choosing the{"\n"}Greenlight Dining App.{"\n"}{"\n"}Your table and 10% discount{"\n"}are waiting for you.{"\n"}{"\n"}Please provide this confirmation{"\n"}code upon your arrival. </Text>
+          <Text selectable style={{fontSize:48,fontWeight:'bold',textAlign:'center',backgroundColor:'#fff',width:'100%',marginTop:10}}>{promoCode}</Text>
           <Text style={{ marginTop:10, textAlign: 'center', color: '#fff' }}>
           EAT NOW!
           </Text>
@@ -81,13 +92,13 @@ export class SuccessScreen extends React.Component {
               backgroundColor="#e60046"
               onPress={()=> this._cancelTable()}
               />
-              {this.state.cameraRollUri &&
+              {/* {this.state.cameraRollUri &&
           <Image
             source={{ uri: this.state.cameraRollUri }}
             style={{ width: 200, height: 200 }}
           />}
 
-        <Button title="Take Screenshot" onPress={this._saveToCameraRollAsync} />
+        <Button title="Take Screenshot" onPress={this._saveToCameraRollAsync} /> */}
             {/* <Button
               title="View Map"
               buttonStyle={{marginTop:10}}
@@ -114,7 +125,7 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     paddingHorizontal: 20,
-    marginTop: 235,
+    marginTop: 135,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

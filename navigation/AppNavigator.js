@@ -12,5 +12,5 @@ export default createSwitchNavigator({
   Auth: AuthStack,
   Main: MainTabNavigator,
 },{
-  initialRouteName: 'Auth',
+  initialRouteName: 'Main',
 });

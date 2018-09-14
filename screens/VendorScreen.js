@@ -10,8 +10,10 @@ import {
   FlatList, RefreshControl
 } from 'react-native';
 import axios from 'axios';
+import { Dropdown } from 'react-native-material-dropdown';
 import { Constants, Location, Permissions } from 'expo';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
+import * as firebase from 'firebase';
 
 export class VendorScreen extends React.Component {
   constructor(props) {
@@ -45,6 +47,17 @@ export class VendorScreen extends React.Component {
     } else {
       this._getLocationAsync();
     }
+    const config = {
+      apiKey: "AIzaSyAXY8wIYsEhL1M0oNZIZ5-Ssx35B8n6xSc",
+      authDomain: "greenlight-dining.firebaseapp.com",
+      databaseURL: "https://greenlight-dining.firebaseio.com",
+      projectId: "greenlight-dining",
+      storageBucket: "greenlight-dining.appspot.com",
+      messagingSenderId: "971281383517"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config);
+    }
   }
   componentDidMount() {
     this.getVendors();
@@ -56,6 +69,26 @@ export class VendorScreen extends React.Component {
     // fetch('https://greenlight.now.sh/api/vendors')
     //   .then(response => console.log(response.json()))
     //   .then(data => console.log(this.setState({ vendors: data })));
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  signOut = (propps) => {
+    firebase.auth().signOut().then(function() {
+      propps.navigation.navigate('Home');
+      Alert.alert(
+        'You have been logged out',
+        'We\'ll see you next time you\'re hungry!',
+        [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+      // debugger;
+      //withNavigation(HomeScreen);
+    }).catch(function(error) {
+      alert(error);
+    });
   }
   getVendors = async () => {
     // this.setState({refreshing: true});
@@ -165,6 +198,8 @@ export class VendorScreen extends React.Component {
     }
     const vendors = this.state.vendors;
     // alert(text);
+    const cuisinePref = this.props.navigation.getParam('cuisineState', 'All');
+    console.log(cuisinePref);
     return (
       <View style={styles.container}>
         <ScrollView
@@ -180,9 +215,15 @@ export class VendorScreen extends React.Component {
         >
           <Text style={styles.titleBar}>Please make a selection</Text>
           {/* <Text>{text}</Text> */}
+      {/* <Dropdown
+            label='Type of Cuisine'
+            data={cuisine}
+            /> */}
           <Card style={{padding: 0,width:'100%'}} >
             {
-              vendors.map((v, i) => {
+              // .sort((a, b) => a.cuisine > b.cuisine)
+              [].concat(vendors)
+              .map((v, i) => {
                 let lightOn = "#bbbbbb";
                 if(v.capacity != 0) {
                   lightOn = "#00E676";
@@ -223,6 +264,12 @@ export class VendorScreen extends React.Component {
               })
             }
           </Card>
+          <Button
+            title="Logout"
+            buttonStyle={{marginTop:0}}
+            backgroundColor="#666"
+            onPress={() => this.signOut(this.props)}
+          />
             {/* <Card
               title='Chez Harry'
               image={require('../assets/images/food.jpg')}>
@@ -267,3 +314,43 @@ const styles = StyleSheet.create({
     height:30,
   },
 });
+
+let cuisine = [{
+  value: 'All',
+}, {
+  value: 'Italian',
+}, {
+  value: 'American',
+}, {
+  value: 'Mexican',
+}, {
+  value: 'Japanese',
+}, {
+  value: 'Thai',
+}, {
+  value: 'Chinese',
+}, {
+  value: 'Vietnamese',
+}, {
+  value: 'Sandwiches',
+}, {
+  value: 'Pizza',
+}, {
+  value: 'Breakfast',
+}, {
+  value: 'Steakhouse',
+}, {
+  value: 'Vegetarian',
+}, {
+  value: 'Seafood',
+}, {
+  value: 'Burgers',
+}, {
+  value: 'Sushi Bars',
+}, {
+  value: 'Brazilian',
+}, {
+  value: 'Greek',
+}, {
+  value: 'Vegan',
+}];

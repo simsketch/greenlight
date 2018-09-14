@@ -13,6 +13,7 @@ import { Hoshi } from 'react-native-textinput-effects';
 import { tintColor } from '../constants/Colors.js';
 import { Button, CheckBox } from 'react-native-elements';
 import { TextInput } from '../node_modules/react-native-gesture-handler';
+import * as firebase from 'firebase';
 
 
 export class LoginScreen extends React.Component {
@@ -27,8 +28,41 @@ export class LoginScreen extends React.Component {
     // passwordInput: AsyncStorage.getItem('password'),
     // usernameInput: AsyncStorage.getItem('emailAddress') || 'username',
     // passwordInput: AsyncStorage.getItem('password') || 'password',
-    usernameInput: 'username',
-    passwordInput: 'password',
+    email: '',
+    password: '',
+    // loading: true,
+  }
+  componentDidMount() {
+    const config = {
+      apiKey: "AIzaSyAXY8wIYsEhL1M0oNZIZ5-Ssx35B8n6xSc",
+      authDomain: "greenlight-dining.firebaseapp.com",
+      databaseURL: "https://greenlight-dining.firebaseio.com",
+      projectId: "greenlight-dining",
+      storageBucket: "greenlight-dining.appspot.com",
+      messagingSenderId: "971281383517"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config);
+    }
+  }
+  onLogin = () => {
+    // alert(JSON.stringify(this.state.email));
+  firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+    .then((user) => {
+      this.props.navigation.navigate('Vendor');
+      alert("Welcome back! So you DO like saving 10% every meal!");
+      // If you need to do anything with the user, do it here
+      // The user will be logged in automatically by the
+      // `onAuthStateChanged` listener we set up in App.js earlier
+      //alert(user);
+    })
+    .catch((error) => {
+      const { code, message } = error;
+      // For details of error codes, see the docs
+      // The message contains the default Firebase string
+      // representation of the error
+      alert(message);
+    });
   }
   _storeLogin = async (un, pw) => {
     //alert(un,pw);
@@ -47,22 +81,85 @@ export class LoginScreen extends React.Component {
     // }
     this.props.navigation.navigate('Find');
   }
+  sendPasswordReset() {
+    // [START sendpasswordemail]
+    firebase.auth().sendPasswordResetEmail(this.state.email).then(function() {
+      // Password Reset Email Sent!
+      // [START_EXCLUDE]
+      alert('Password Reset Email Sent!');
+      // [END_EXCLUDE]
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // [START_EXCLUDE]
+      if (errorCode == 'auth/invalid-email') {
+        alert(errorMessage);
+      } else if (errorCode == 'auth/user-not-found') {
+        alert(errorMessage);
+      }
+      console.log(error);
+      // [END_EXCLUDE]
+    });
+    // [END sendpasswordemail];
+  }
+  onRegister = () => {
+    // alert(JSON.stringify(this.state.email));
+  firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
+    .then((user) => {
+      // this.props.navigation.navigate('Find');
+      this.props.navigation.navigate('Vendor');
+      Alert.alert(
+        'Welcome back!',
+        'So you DO like saving 10% every meal!',
+        [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+      // If you need to do anything with the user, do it here
+      // The user will be logged in automatically by the
+      // `onAuthStateChanged` listener we set up in App.js earlier
+      //alert(user);
+    })
+    .catch((error) => {
+      const { code, message } = error;
+      // For details of error codes, see the docs
+      // The message contains the default Firebase string
+      // representation of the error
+      Alert.alert(
+        'Login Error',
+        message,
+        [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+    });
+  }
   render() {
+    // The application is initialising
+    // if (this.state.loading) return null;
+    // The user is an Object, so they're logged in
+    // if (this.state.user) this.props.navigation.navigate('Find');
+    // The user is null, so they're logged out, show the login fields
     return (
       <View style={styles.container}>
         <Text style={styles.titleBar}>Login Screen</Text>
         <Hoshi
           label="Email Address"
           borderColor= { '#00e676' }
-          value={this.state.usernameInput}
-          onChangeText={(usernameInput) => this.setState({usernameInput})}
+          value={this.state.email}
+          autoCapitalize="none"
+          onChangeText={(email) => this.setState({email})}
         />
         <Hoshi
           label="Password"
           borderColor= { '#00e676' }
-          value={this.state.passwordInput}
+          value={this.state.password}
           secureTextEntry={true}
-          onChangeText={(passwordInput) => this.setState({passwordInput})}
+          autoCapitalize="none"
+          onChangeText={(password) => this.setState({password})}
         />
         <CheckBox
           title='Remember me'
@@ -75,7 +172,13 @@ export class LoginScreen extends React.Component {
           title="Login"
           buttonStyle={{marginTop:50}}
           backgroundColor="#00E676"
-          onPress={() => this._storeLogin(this.state.usernameInput,this.state.passwordInput)}
+          onPress={() => this.onLogin()}
+        />
+        <Button
+          title="Reset Password"
+          buttonStyle={{marginTop:50}}
+          backgroundColor="#00E676"
+          onPress={() => this.sendPasswordReset()}
         />
       </View>
     );

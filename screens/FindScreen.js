@@ -2,12 +2,59 @@ import React from 'react';
 import {
   StyleSheet,
   Text,
-  View
+  View,
+  Alert
 } from 'react-native';
+import { HomeScreen } from '../screens/HomeScreen';
 import { Dropdown } from 'react-native-material-dropdown';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
+import AppNavigator from '../navigation/AppNavigator';
+import * as firebase from 'firebase';
+// import AuthScreen from '../screens/AuthScreen';
+import { NavigationActions, withNavigation } from 'react-navigation';
 
 export class FindScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    // const email = AsyncStorage.getItem('emailAddress');
+    // alert(JSON.stringify(email));
+  }
+  state = {
+    cuisineState: 'All',
+  }
+  selectCuisine(selection) {
+    this.setState({cuisineState: selection});
+  }
+  componentDidMount() {
+    const config = {
+      apiKey: "AIzaSyAXY8wIYsEhL1M0oNZIZ5-Ssx35B8n6xSc",
+      authDomain: "greenlight-dining.firebaseapp.com",
+      databaseURL: "https://greenlight-dining.firebaseio.com",
+      projectId: "greenlight-dining",
+      storageBucket: "greenlight-dining.appspot.com",
+      messagingSenderId: "971281383517"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config);
+    }
+  }
+  signOut = (propps) => {
+    firebase.auth().signOut().then(function() {
+      propps.navigation.navigate('Home');
+      Alert.alert(
+        'You have been logged out',
+        'We\'ll see you next time you\'re hungry!',
+        [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+      // debugger;
+      //withNavigation(HomeScreen);
+    }).catch(function(error) {
+      alert(error);
+    });
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -25,6 +72,7 @@ export class FindScreen extends React.Component {
             <Dropdown
             label='Type of Cuisine'
             data={cuisine}
+            onChangeText={(selection) => this.selectCuisine(selection)}
             />
             {/* <Dropdown
             label='Search Radius'
@@ -34,7 +82,15 @@ export class FindScreen extends React.Component {
               title="Eat Now!"
               buttonStyle={{marginTop:50}}
               backgroundColor="#00E676"
-              onPress={() => this.props.navigation.navigate('Vendor')}
+              onPress={() => this.props.navigation.navigate('Vendor', {
+                cuisineState: this.state.cuisineState
+              })}
+            />
+            <Button
+              title="Logout"
+              buttonStyle={{marginTop:50}}
+              backgroundColor="#666"
+              onPress={() => this.signOut(this.props)}
             />
           </View>
       </View>

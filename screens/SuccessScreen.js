@@ -29,7 +29,7 @@ export class SuccessScreen extends React.Component {
   }
   _getDirections = () => {
     // const url = 'https://www.google.com/maps/dir/@'+this.state.location.latitude+','+this.state.location.longitude+'/'+encodeURIComponent(this.state.vendorName);
-    const url = 'https://www.google.com/maps/dir/'+encodeURIComponent(this.state.vendorName);
+    const url = 'https://www.google.com/maps/search/'+encodeURIComponent(this.state.vendorName);
     // alert(url);
     WebBrowser.openBrowserAsync(url);
   };

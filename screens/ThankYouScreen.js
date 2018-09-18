@@ -24,7 +24,7 @@ export class ThankYouScreen extends React.Component {
     })
   }
   _leaveReview = () => {
-    WebBrowser.openBrowserAsync('https://itunes.apple.com/us/app/greenlight-debit-card-for-kids/id1049340702?mt=8');
+    WebBrowser.openBrowserAsync('https://play.google.com/store/apps/details?id=com.a2zCreative.greenlight');
   };
   render() {
     if(StoreReview.isSupported()) {

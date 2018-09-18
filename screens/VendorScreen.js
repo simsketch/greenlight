@@ -92,7 +92,7 @@ export class VendorScreen extends React.Component {
   }
   getVendors = async () => {
     // this.setState({refreshing: true});
-    fetch('https://greenlight.now.sh/api/vendors', {method: "GET"})
+    fetch('https://app.greenlightdining.com/api/vendors', {method: "GET"})
      .then((response) => response.json())
      .then((responseData) =>
      {
@@ -132,13 +132,14 @@ export class VendorScreen extends React.Component {
     //   });
     let newEntry = {}
     newEntry.vendorId = rowData._id;
+    newEntry.vendorName = rowData.name;
     newEntry.userId = "testuser@greenlightdining.com";
     newEntry.numberOfGuests = rowData.guests;
     newEntry.promoCode = Math.floor(Math.random()*16777215).toString(16).toUpperCase();
     newEntry.userLat = this.state.location.coords.latitude;
     newEntry.userLong = this.state.location.coords.longitude;
     newEntry.timestamp = this.state.location.timestamp;
-    fetch('https://greenlight.now.sh/api/orders', {
+    fetch('https://app.greenlightdining.com/api/orders', {
       method: 'post',
       body: JSON.stringify(newEntry),
       headers: {
@@ -153,7 +154,10 @@ export class VendorScreen extends React.Component {
       //   vendors: data
       // });
       this.props.navigation.navigate('Success', {
-        promoCode: newEntry.promoCode}
+        promoCode: newEntry.promoCode,
+        location: this.state.location.coords,
+        vendorName: newEntry.vendorName,
+      }
       );
       //return newEntry;
     })
@@ -223,6 +227,11 @@ export class VendorScreen extends React.Component {
             {
               // .sort((a, b) => a.cuisine > b.cuisine)
               [].concat(vendors)
+              .sort(function(a, b) {
+                if(a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+                if(a.name.toLowerCase() > b.name.toLowerCase()) return 1;
+                return 0;
+               })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
                 if(v.capacity != 0) {

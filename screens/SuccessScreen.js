@@ -24,9 +24,14 @@ export class SuccessScreen extends React.Component {
   }
   state = {
     cameraRollUri: null,
+    location: this.props.navigation.getParam('location', 'no location set'),
+    vendorName: this.props.navigation.getParam('vendorName', 'Restaurant X')
   }
   _getDirections = () => {
-    WebBrowser.openBrowserAsync('https://www.google.com/maps/dir//Sushi+Bon+Express+Inc,+304+E+Ocean+Ave,+Lantana,+FL+33462/@26.584162,-80.048381,15z/data=!4m8!4m7!1m0!1m5!1m1!1s0x88d8d9014646ca21:0xa6d2d255fb7d4b0d!2m2!1d-80.048381!2d26.584162');
+    // const url = 'https://www.google.com/maps/dir/@'+this.state.location.latitude+','+this.state.location.longitude+'/'+encodeURIComponent(this.state.vendorName);
+    const url = 'https://www.google.com/maps/dir/'+encodeURIComponent(this.state.vendorName);
+    // alert(url);
+    WebBrowser.openBrowserAsync(url);
   };
   // _saveToCameraRollAsync = async () => {
   //   let result = await takeSnapshotAsync(this._container, {
@@ -75,7 +80,7 @@ export class SuccessScreen extends React.Component {
         <View style={styles.overlay}>
           <View style={styles.overlayText}>
           <Text style={{ fontSize:14, textAlign: 'center', color: '#fff', backgroundColor:'#333', padding:10 }}>
-          Thank you for choosing the{"\n"}Greenlight Dining App.{"\n"}{"\n"}Your table and 10% discount{"\n"}are waiting for you.{"\n"}{"\n"}Please provide this confirmation{"\n"}code upon your arrival. </Text>
+          Thank you for choosing the{"\n"}Greenlight Dining App.{"\n"}{"\n"}Your table and 10% discount{"\n"}are waiting for you.{"\n"}{"\n"}Please provide this confirmation code upon your arrival.{"\n"}{"\n"}This code is only valid for 15 minutes!</Text>
           <Text selectable style={{fontSize:48,fontWeight:'bold',textAlign:'center',backgroundColor:'#fff',width:'100%',marginTop:10}}>{promoCode}</Text>
           <Text style={{ marginTop:10, textAlign: 'center', color: '#fff' }}>
           EAT NOW!
@@ -125,7 +130,7 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     paddingHorizontal: 20,
-    marginTop: 135,
+    marginTop: 85,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

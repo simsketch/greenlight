@@ -6,7 +6,7 @@
     "privacy": "public",
     "sdkVersion": "29.0.0",
     "platforms": ["ios", "android"],
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
@@ -25,6 +25,9 @@
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey":"AIzaSyBDQnrAQzneJc7RsZ2cUs33vMsyqHEMtlA"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your current location to provide you with directions and to provide the restaurant with your estimated time of arrival."
       }
     },
     "android": {

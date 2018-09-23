@@ -4,7 +4,9 @@ import {
   Text,
   View,
   Image,
-  Alert, CameraRoll
+  Alert,
+  AsyncStorage,
+  CameraRoll
 } from 'react-native';
 import { WebBrowser, MapView, Video, Haptic } from 'expo';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
@@ -25,7 +27,12 @@ export class SuccessScreen extends React.Component {
   state = {
     cameraRollUri: null,
     location: this.props.navigation.getParam('location', 'no location set'),
-    vendorName: this.props.navigation.getParam('vendorName', 'Restaurant X')
+    vendorName: this.props.navigation.getParam('vendorName', 'Restaurant X'),
+    vendorId: this.props.navigation.getParam('vendorId', '0x012345'),
+    numberOfGuests: this.props.navigation.getParam('numberOfGuests', '7'),
+    capacity: this.props.navigation.getParam('capacity', '0'),
+    promoCode: this.props.navigation.getParam('promoCode', 'PROMOCODE5'),
+    timestamp: this.props.navigation.getParam('timestamp', '1450663457')
   }
   _getDirections = () => {
     // const url = 'https://www.google.com/maps/dir/@'+this.state.location.latitude+','+this.state.location.longitude+'/'+encodeURIComponent(this.state.vendorName);
@@ -33,6 +40,55 @@ export class SuccessScreen extends React.Component {
     // alert(url);
     WebBrowser.openBrowserAsync(url);
   };
+  componentDidMount() {
+    this.updateCapacity();
+    this._saveCode();
+  }
+  _saveCode = async () => {
+      try {
+        await
+        AsyncStorage.setItem('promoCode', this.state.promoCode);
+        AsyncStorage.setItem('timestamp', this.state.timestamp.toString());
+      } catch (error) {
+        alert('Save error: '+error);
+      }
+  }
+  updateCapacity() {
+    // const id = this.state.vendors[index]._id;
+    // let capacity = document.getElementById('newCapacity-'+index).value;
+    // if (capacity == "") {
+    //   capacity = "0";
+    // } else {
+    //   capacity = capacity.split(",");
+    // }
+    const id = this.state.vendorId;
+    const numberOfGuests = this.state.numberOfGuests;
+    let capacity = this.state.capacity;
+    // debugger;
+    capacity = capacity.replace(numberOfGuests, "");
+    if (capacity!="") {
+      capacityArray = capacity.split(",").join('').split('');
+      if (capacityArray.length >= 1) {
+      capacity = capacity.split(",").join('').split('').join(",");
+      } else {
+        capacity = "";
+      }
+    } else {
+      capacity = "0";
+    }
+    fetch(`http://app.greenlightdining.com/api/vendors/${id}/update/${capacity}`, { method: 'PUT' })
+      .then(res => {
+        // document.getElementById('capacity-'+index).innerHTML = capacity;
+        console.log("Table capacity has been updated: "+capacity+"-"+numberOfGuests);
+        // alert("Success! Capacity updated.");
+        // window.location.reload();
+        // return res.json();
+        // this._modifyVendor(index, null);
+      })
+      .catch(err => {
+        alert(err);
+      });
+  }
   // _saveToCameraRollAsync = async () => {
   //   let result = await takeSnapshotAsync(this._container, {
   //     format: 'png',
@@ -44,11 +100,30 @@ export class SuccessScreen extends React.Component {
   //   this.setState({ cameraRollUri: saveResult });
   // };
   _cancelTable = () => {
+    const id = this.state.vendorId;
+    // const numberOfGuests = this.state.numberOfGuests;
+    let capacity = this.state.capacity;
+    // capacity = capacity + "," + numberOfGuests;
+    fetch(`http://app.greenlightdining.com/api/vendors/${id}/update/${capacity}`, { method: 'PUT' })
+      .then(res => {
+        // document.getElementById('capacity-'+index).innerHTML = capacity;
+        console.log("Table capacity has been updated: "+capacity);
+        // alert("Success! Capacity updated.");
+        // window.location.reload();
+        // return res.json();
+        // this._modifyVendor(index, null);
+      })
+      .catch(err => {
+        alert(err);
+      });
     Alert.alert(
       'Cancel table?',
       'You are about to cancel your table. You won\'t be saving 10% if you cancel. Proceed??',
       [
-        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+        {text: 'Cancel', onPress: () => {
+
+          console.log('Cancel Pressed');
+        }, style: 'cancel'},
         {text: 'OK', onPress: () => this.props.navigation.navigate('Vendor')},
       ],
       { cancelable: false }
@@ -58,8 +133,6 @@ export class SuccessScreen extends React.Component {
     //this.props.navigation.navigate('Vendor');
   };
   render() {
-    const { navigation } = this.props;
-    const promoCode = navigation.getParam('promoCode', 'PROMOCODE5');
     Haptic.notification(Haptic.NotificationTypes.Success);
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -81,7 +154,7 @@ export class SuccessScreen extends React.Component {
           <View style={styles.overlayText}>
           <Text style={{ fontSize:14, textAlign: 'center', color: '#fff', backgroundColor:'#333', padding:10 }}>
           Thank you for choosing the{"\n"}Greenlight Dining App.{"\n"}{"\n"}Your table and 10% discount{"\n"}are waiting for you.{"\n"}{"\n"}Please provide this confirmation code upon your arrival.{"\n"}{"\n"}This code is only valid for 15 minutes!</Text>
-          <Text selectable style={{fontSize:48,fontWeight:'bold',textAlign:'center',backgroundColor:'#fff',width:'100%',marginTop:10}}>{promoCode}</Text>
+          <Text selectable style={{fontSize:48,fontWeight:'bold',textAlign:'center',backgroundColor:'#fff',width:'100%',marginTop:10}}>{this.state.promoCode}</Text>
           <Text style={{ marginTop:10, textAlign: 'center', color: '#fff' }}>
           EAT NOW!
           </Text>

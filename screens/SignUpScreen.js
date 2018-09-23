@@ -49,6 +49,7 @@ export class SignUpScreen extends React.Component {
     }
     onRegister = () => {
       // alert(JSON.stringify(this.state.email));
+    if(this.state.termsChecked) {
     firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then((user) => {
         this.props.navigation.navigate('Vendor');
@@ -79,7 +80,14 @@ export class SignUpScreen extends React.Component {
           { cancelable: false }
         )
       });
+    } else {
+      alert('You must accept the terms and conditions in order to continue.');
     }
+    }
+    viewTerms = () => {
+      const url = 'http://greenlightdining.com/terms';
+      WebBrowser.openBrowserAsync(url);
+    };
     render() {
       return (
         <ScrollView style={styles.container}>
@@ -114,12 +122,16 @@ export class SignUpScreen extends React.Component {
             uncheckedColor="#00E676"
             onPress={() => this.setState({termsChecked:!this.state.termsChecked})}
           />
-          <CheckBox
+          <Text style={styles.viewTerms} onPress={() => this.viewTerms()}>
+          Click here to view terms and conditions
+          </Text>
+
+          {/* <CheckBox
             title='I agree to receive updates'
             checked={this.state.newsChecked}
             checkedColor="#00E676"
             uncheckedColor="#00E676"
-            onPress={() => this.setState({newsChecked:!this.state.newsChecked})}
+            onPress={() => this.setState({newsChecked:!this.state.newsChecked})} */}
           />
           <Button
             title="Sign Up"
@@ -146,4 +158,9 @@ const styles = StyleSheet.create({
       marginBottom:40,
       height:30,
     },
+    viewTerms: {
+      textAlign:'center',
+      marginTop: 20,
+      color: '#979797'
+    }
 });

@@ -21,6 +21,7 @@ export class LoginScreen extends React.Component {
     super(props);
     // const email = AsyncStorage.getItem('emailAddress');
     // alert(JSON.stringify(email));
+    // this.fetchSavedEmail = this.fetchSavedEmail.bind(this);
   }
   state = {
     rememberMeChecked: true,
@@ -28,11 +29,52 @@ export class LoginScreen extends React.Component {
     // passwordInput: AsyncStorage.getItem('password'),
     // usernameInput: AsyncStorage.getItem('emailAddress') || 'username',
     // passwordInput: AsyncStorage.getItem('password') || 'password',
-    email: '',
-    password: '',
+    // email: this.fetchSavedEmail(),
+    // password: this.fetchSavedPassword(),
+    // email: '',
+    // password: '',
     // loading: true,
   }
+  // getUserId = async () => {
+  //   try {
+  //     const userId = await AsyncStorage.getItem('emailAddress') || 'none';
+  //   } catch (error) {
+  //     // Error retrieving data
+  //     console.log(error.message);
+  //   }
+  //   return userId;
+  // }
+  // fetchSavedEmail() {
+  //   const userId = AsyncStorage.getItem('emailAddress');
+  //   return userId;
+  // }
+  // fetchSavedPassword() {
+  //   return AsyncStorage.getItem('emailAddress');
+  // }
+  componentWillMount() {
+    AsyncStorage.getItem('rememberMeChecked')
+    .then((value) => {
+        // alert(value);
+        this.setState({ 'rememberMeChecked': Boolean(value) })
+        if (value) {
+          this.retrieveEmailAndPassword();
+        }
+      })
+  }
+  retrieveEmailAndPassword() {
+    AsyncStorage.getItem('emailAddress')
+    .then((value) => {
+        // alert(value);
+        this.setState({ 'email': value })
+    });
+    AsyncStorage.getItem('password')
+    .then((value) => {
+        // alert(value);
+        this.setState({ 'password': value })
+      })
+  }
   componentDidMount() {
+    // this.retrieveEmailAndPassword();
     const config = {
       apiKey: "AIzaSyAXY8wIYsEhL1M0oNZIZ5-Ssx35B8n6xSc",
       authDomain: "greenlight-dining.firebaseapp.com",
@@ -45,16 +87,25 @@ export class LoginScreen extends React.Component {
       firebase.initializeApp(config);
     }
   }
+  clearFields() {
+    this.setState({email:''});
+    this.setState({password:''});
+  }
   onLogin = () => {
     // alert(JSON.stringify(this.state.email));
+  
   firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+    .then(this._storeLogin(this.state.email, this.state.password))
     .then((user) => {
-      this.props.navigation.navigate('Vendor');
-      alert("Welcome back! So you DO like saving 10% every meal!");
+      // this.props.navigation.navigate('Vendor');
+      this.props.navigation.navigate('Vendor', {
+        email: this.state.email
+      });
+      // alert("Welcome back! So you DO like saving 10% every meal!");
       // If you need to do anything with the user, do it here
       // The user will be logged in automatically by the
       // `onAuthStateChanged` listener we set up in App.js earlier
-      //alert(user);
+      // alert("Welcome back "+JSON.stringify(user.email));
     })
     .catch((error) => {
       const { code, message } = error;
@@ -67,19 +118,35 @@ export class LoginScreen extends React.Component {
   _storeLogin = async (un, pw) => {
     //alert(un,pw);
     console.log(un);
-    // if (this.state.rememberMeChecked) {
-    //   try {
-    //     await
-    //     // alert(JSON.stringify(this.state.usernameInput));
-    //     AsyncStorage.setItem('emailAddress', "mike");
-    //     alert(AsyncStorage.getItem('emailAddress').toString());
-    //     // alert(JSON.stringify(this.state.passwordInput));
-    //     AsyncStorage.setItem('password', JSON.stringify(pw));
-    //   } catch (error) {
-    //     alert('There was an error saving your login information to this device.');
-    //   }
-    // }
-    this.props.navigation.navigate('Find');
+    console.log("this.state.rememberMeChecked: "+this.state.rememberMeChecked)
+    if (this.state.rememberMeChecked) {
+      try {
+        await
+        // alert(JSON.stringify(this.state.usernameInput));
+        AsyncStorage.setItem('emailAddress', un);
+        // alert(AsyncStorage.getItem('emailAddress').toString());
+        // alert(JSON.stringify(this.state.passwordInput));
+        AsyncStorage.setItem('password', pw);
+        AsyncStorage.setItem('rememberMeChecked', 'true');
+      } catch (error) {
+        alert('There was an error saving your login information to this device.');
+      }
+    }
+    else {
+      // this.clearFields();
+      try {
+        await
+        // alert(JSON.stringify(this.state.usernameInput));
+        AsyncStorage.setItem('emailAddress', '');
+        // alert(AsyncStorage.getItem('emailAddress').toString());
+        // alert(JSON.stringify(this.state.passwordInput));
+        AsyncStorage.setItem('password', '');
+        AsyncStorage.setItem('rememberMeChecked', 'false');
+      } catch (error) {
+        alert('There was an error saving your login information to this device.');
+      }
+    }
+    // this.props.navigation.navigate('Find');
   }
   sendPasswordReset() {
     // [START sendpasswordemail]
@@ -143,6 +210,7 @@ export class LoginScreen extends React.Component {
     // The user is an Object, so they're logged in
     // if (this.state.user) this.props.navigation.navigate('Find');
     // The user is null, so they're logged out, show the login fields
+    // alert(JSON.stringify(this.state.email));
     return (
       <View style={styles.container}>
         <Text style={styles.titleBar}>Login Screen</Text>
@@ -152,6 +220,7 @@ export class LoginScreen extends React.Component {
           value={this.state.email}
           autoCapitalize="none"
           onChangeText={(email) => this.setState({email})}
+          // onChangeText = {this._storeLogin}
         />
         <Hoshi
           label="Password"
@@ -175,9 +244,15 @@ export class LoginScreen extends React.Component {
           onPress={() => this.onLogin()}
         />
         <Button
+          title="Clear Fields"
+          buttonStyle={{marginTop:20}}
+          backgroundColor="#999"
+          onPress={() => this.clearFields()}
+        />
+        <Button
           title="Reset Password"
-          buttonStyle={{marginTop:50}}
-          backgroundColor="#00E676"
+          buttonStyle={{marginTop:5}}
+          backgroundColor="#333"
           onPress={() => this.sendPasswordReset()}
         />
       </View>

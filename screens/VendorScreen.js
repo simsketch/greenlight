@@ -7,7 +7,9 @@ import {
   TouchableHighlight,
   Alert,
   Platform,
-  FlatList, RefreshControl
+  FlatList,
+  RefreshControl,
+  Keyboard
 } from 'react-native';
 import axios from 'axios';
 import { Dropdown } from 'react-native-material-dropdown';
@@ -60,8 +62,9 @@ export class VendorScreen extends React.Component {
     }
   }
   componentDidMount() {
+    Keyboard.dismiss();
     this.getVendors();
-    this.timer = setInterval(()=> this.getVendors(), 3000)
+    this.timer = setInterval(()=> this.getVendors(), 3000);
     // let fetchVendors = this._retrieveVendors();
     // setInterval(function(fetchVendors) {
     //   fetchVendors();
@@ -133,12 +136,13 @@ export class VendorScreen extends React.Component {
     let newEntry = {}
     newEntry.vendorId = rowData._id;
     newEntry.vendorName = rowData.name;
-    newEntry.userId = "testuser@greenlightdining.com";
+    newEntry.userId = this.props.navigation.getParam('email', 'testuser@greenlightdining.com')
     newEntry.numberOfGuests = rowData.guests;
+    newEntry.capacity = rowData.capacity;
     newEntry.promoCode = Math.floor(Math.random()*16777215).toString(16).toUpperCase();
     newEntry.userLat = this.state.location.coords.latitude;
     newEntry.userLong = this.state.location.coords.longitude;
-    newEntry.timestamp = this.state.location.timestamp;
+    newEntry.timestamp = new Date().getTime().toString();
     fetch('https://app.greenlightdining.com/api/orders', {
       method: 'post',
       body: JSON.stringify(newEntry),
@@ -157,6 +161,10 @@ export class VendorScreen extends React.Component {
         promoCode: newEntry.promoCode,
         location: this.state.location.coords,
         vendorName: newEntry.vendorName,
+        vendorId: newEntry.vendorId,
+        numberOfGuests: newEntry.numberOfGuests,
+        capacity: newEntry.capacity,
+        timestamp: newEntry.timestamp
       }
       );
       //return newEntry;
@@ -228,14 +236,19 @@ export class VendorScreen extends React.Component {
               // .sort((a, b) => a.cuisine > b.cuisine)
               [].concat(vendors)
               .sort(function(a, b) {
-                if(a.name.toLowerCase() < b.name.toLowerCase()) return -1;
-                if(a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-                return 0;
-               })
+                var ret = 0;
+                if(a.name.toLowerCase() < b.name.toLowerCase()) ret = -1;
+                if(a.name.toLowerCase() > b.name.toLowerCase()) ret = 1;
+                if(a.capacity.length > b.capacity.length) ret = -1;
+                if(a.capacity.length < b.capacity.length) ret = 1;
+                return ret;
+              })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
+                let tablesAvailable = "No tables available";
                 if(v.capacity != 0) {
                   lightOn = "#00E676";
+                  tablesAvailable = "Table for "+v.capacity;
                 }
                 return (
                   <TouchableHighlight
@@ -251,7 +264,8 @@ export class VendorScreen extends React.Component {
                     title={v.name}
                     titleStyle={{marginLeft:40}}
                     subtitle={
-                      <Text style={{marginLeft:40,height:60,fontSize:12}}>Table for {v.capacity}{"\n"}{v.cuisine}{"\n"}{v.price}</Text>
+                      <Text style={{marginLeft:40,height:60,fontSize:12}}>
+                      {tablesAvailable}{"\n"}{v.cuisine}{"\n"}{v.price}</Text>
                     }
                   /></TouchableHighlight>
                   // <ListItem

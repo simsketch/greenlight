@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  AsyncStorage,
   TouchableHighlight
 } from 'react-native';
 import { WebBrowser } from 'expo';
@@ -23,12 +24,32 @@ export class HomeScreen extends React.Component {
       // gifURI: Expo.Asset.fromModule(require('../assets/videos/food.gif')).uri,
       loginTitle: "Let\'s Eat",
   };
+  componentDidMount() {
+    AsyncStorage.getItem('timestamp')
+    .then((value) => {
+      console.log('timestamp: '+value);
+        this.setState({ 'timestamp': value });
+        const diff = new Date().getTime() - new Date(+(value));
+        if(diff<1210000) {
+          AsyncStorage.getItem('promoCode')
+          .then((value) => {
+            console.log('promoCode: '+value);
+              this.setState({ 'promoCode': value })
+          });
+        }
+      })
+  }
   welcomeMessage() {
       return (
         <Text style={styles.developmentModeText}>
-        Find a table NOW!
+        Find a table NOW!{"\n"}
       </Text>
       )
+  }
+  renderPromoCode() {
+    if (this.state.promoCode) {
+      return "Your Greenlight code is "+this.state.promoCode+"\nYour table is waiting!"
+    }
   }
   buzzWords() {
       return (
@@ -68,6 +89,9 @@ export class HomeScreen extends React.Component {
               style={styles.welcomeImage}
             />
             {this.welcomeMessage()}
+            <Text style={styles.promoCode}>
+            {this.renderPromoCode()}
+            </Text>
             <Button
               title="Sign Up"
               backgroundColor="#00E676"
@@ -106,9 +130,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     textAlign: 'center',
   },
+  promoCode: {
+    fontSize: 14,
+    fontWeight:'bold',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
   overlayText: {
     paddingHorizontal: 20,
-    marginTop: 135,
+    marginTop: 115,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

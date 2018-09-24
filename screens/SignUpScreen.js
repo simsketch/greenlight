@@ -80,6 +80,25 @@ export class SignUpScreen extends React.Component {
           { cancelable: false }
         )
       });
+      // firebase.auth().onAuthStateChanged(function(user) {
+      //   if (user) {
+      //     // Updates the user attributes:
+      //     user.updateProfile({ // <-- Update Method here
+      //       displayName: this.state.name,
+      //       // photoURL: "https://example.com/jane-q-user/profile.jpg"
+      //     }).then(function() {
+      //       console.log("name updated to "+ this.state.name);
+      //       // Profile updated successfully!
+      //       //  "NEW USER NAME"
+      //       // var displayName = user.displayName;
+      //       // "https://example.com/jane-q-user/profile.jpg"
+      //       // var photoURL = user.photoURL;
+      //     }, function(error) {
+      //       // An error happened.
+      //     });     
+
+      //   }
+      // });
     } else {
       alert('You must accept the terms and conditions in order to continue.');
     }

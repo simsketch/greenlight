@@ -7,9 +7,10 @@ import {
   Text,
   View,
   AsyncStorage,
-  TouchableHighlight
+  TouchableHighlight,
+  Alert
 } from 'react-native';
-import { WebBrowser } from 'expo';
+import { WebBrowser, Video } from 'expo';
 import { tintColor } from '../constants/Colors.js';
 import { Hoshi } from 'react-native-textinput-effects';
 import { Dropdown } from 'react-native-material-dropdown';
@@ -25,6 +26,57 @@ export class HomeScreen extends React.Component {
       loginTitle: "Let\'s Eat",
   };
   componentDidMount() {
+    this.getCode();
+    this.timer = setInterval(()=> this.getCode(), 3000);
+  }
+  cancelTable = () => {
+    // const id = this.state.vendorId;
+    // // const numberOfGuests = this.state.numberOfGuests;
+    // let capacity = this.state.capacity;
+    // // capacity = capacity + "," + numberOfGuests;
+    // fetch(`http://app.greenlightdining.com/api/vendors/${id}/update/${capacity}`, { method: 'PUT' })
+    //   .then(res => {
+    //     // document.getElementById('capacity-'+index).innerHTML = capacity;
+    //     console.log("Table capacity has been updated: "+capacity);
+    //     // alert("Success! Capacity updated.");
+    //     // window.location.reload();
+    //     // return res.json();
+    //     // this._modifyVendor(index, null);
+    //   })
+    //   .catch(err => {
+    //     alert(err);
+    //   });
+    Alert.alert(
+      'Cancel table?',
+      'You are about to cancel your table. You won\'t be saving 10% if you cancel. Proceed??',
+      [
+        {text: 'Cancel', onPress: () => {
+          console.log('Cancel Pressed');
+        }, style: 'cancel'},
+        {text: 'OK', onPress: () => {
+          this.clearCode();
+          }
+        },
+      ],
+      { cancelable: false }
+    )
+
+    //alert("Cancel table?");
+    //this.props.navigation.navigate('Vendor');
+  };
+  clearCode = async () => {
+    this.setState({promoCode:null});
+    this.setState({timestamp:null});
+    try {
+      await
+      AsyncStorage.setItem('promoCode', '');
+      AsyncStorage.setItem('timestamp', '');
+      this.props.navigation.navigate('Home');
+    } catch (error) {
+      alert('Save error: '+error);
+    }
+  }
+  getCode() {
     AsyncStorage.getItem('timestamp')
     .then((value) => {
       console.log('timestamp: '+value);
@@ -48,7 +100,16 @@ export class HomeScreen extends React.Component {
   }
   renderPromoCode() {
     if (this.state.promoCode) {
-      return "Your Greenlight code is "+this.state.promoCode+"\nYour table is waiting!"
+      return (
+      <View style={styles.promoCode}>
+      <Text style={styles.promoCodeText}>Your Greenlight code is {this.state.promoCode}{"\n"}Your table is waiting!</Text>
+      <Button
+        title="Cancel Table"
+        backgroundColor="#871f1f"
+        onPress={() => this.cancelTable()}
+      />
+      </View>
+      );
     }
   }
   buzzWords() {
@@ -63,8 +124,8 @@ export class HomeScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {/* <Video
-          source={{ uri: this.state.videoURI }}
+        <Video
+          source={{ uri: 'http://teragigame.ga/greenlight/food.mp4' }}
           rate={1.0}
           volume={1.0}
           isMuted={false}
@@ -72,11 +133,11 @@ export class HomeScreen extends React.Component {
           shouldPlay
           isLooping
           style={{ width: '100%', height: '100%' }}
-        /> */}
-        <Image
+        />
+        {/* <Image
           source={{ uri: 'http://teragigame.ga/greenlight/food.jpg' }}
           style={{ width: '100%', height: '100%' }}
-        />
+        /> */}
         <ScrollView style={styles.overlay}>
           <View style={styles.overlayText}>
           {this.buzzWords()}
@@ -89,9 +150,7 @@ export class HomeScreen extends React.Component {
               style={styles.welcomeImage}
             />
             {this.welcomeMessage()}
-            <Text style={styles.promoCode}>
             {this.renderPromoCode()}
-            </Text>
             <Button
               title="Sign Up"
               backgroundColor="#00E676"
@@ -131,6 +190,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   promoCode: {
+    fontSize: 14,
+    fontWeight:'bold',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  promoCodeText: {
     fontSize: 14,
     fontWeight:'bold',
     alignItems: 'center',

@@ -121,10 +121,13 @@ export class SuccessScreen extends React.Component {
       'You are about to cancel your table. You won\'t be saving 10% if you cancel. Proceed??',
       [
         {text: 'Cancel', onPress: () => {
-
           console.log('Cancel Pressed');
         }, style: 'cancel'},
-        {text: 'OK', onPress: () => this.props.navigation.navigate('Vendor')},
+        {text: 'OK', onPress: () =>{
+            this.clearCode();
+            this.props.navigation.navigate('Vendor');
+          }
+        },
       ],
       { cancelable: false }
     )
@@ -132,6 +135,17 @@ export class SuccessScreen extends React.Component {
     //alert("Cancel table?");
     //this.props.navigation.navigate('Vendor');
   };
+  clearCode = async () => {
+    // this.setState({promoCode:null});
+    // this.setState({timestamp:null});
+    try {
+      await
+      AsyncStorage.setItem('promoCode', '');
+      AsyncStorage.setItem('timestamp', '');
+    } catch (error) {
+      alert('Save error: '+error);
+    }
+  }
   render() {
     Haptic.notification(Haptic.NotificationTypes.Success);
     return (

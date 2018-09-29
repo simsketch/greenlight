@@ -30,30 +30,36 @@ export class HomeScreen extends React.Component {
     this.timer = setInterval(()=> this.getCode(), 3000);
   }
   cancelTable = () => {
-    // const id = this.state.vendorId;
-    // // const numberOfGuests = this.state.numberOfGuests;
-    // let capacity = this.state.capacity;
-    // // capacity = capacity + "," + numberOfGuests;
-    // fetch(`http://app.greenlightdining.com/api/vendors/${id}/update/${capacity}`, { method: 'PUT' })
-    //   .then(res => {
-    //     // document.getElementById('capacity-'+index).innerHTML = capacity;
-    //     console.log("Table capacity has been updated: "+capacity);
-    //     // alert("Success! Capacity updated.");
-    //     // window.location.reload();
-    //     // return res.json();
-    //     // this._modifyVendor(index, null);
-    //   })
-    //   .catch(err => {
-    //     alert(err);
-    //   });
+    const id = this.state.vendorId;
+    const numberOfGuests = this.state.numberOfGuests;
+    let capacity = this.state.capacity;
+    // capacity = capacity+","+numberOfGuests;
+    // if (capacity!="") {
+    //   capacityArray = capacity.split(",").filter(Number);
+    //   if (capacityArray.length >= 1) {
+    //   capacity = capacity.split(",").filter(Number).join(",");
+    //   } else {
+    //     capacity = "";
+    //   }
+    // } else {
+    //   capacity = "0";
+    // }
+    console.log("capacity: "+capacity);
+    fetch(`http://app.greenlightdining.com/api/vendors/${id}/update/${capacity}`, { method: 'PUT' })
+      .then(res => {
+        console.log("Table capacity has been updated: "+capacity);
+      })
+      .catch(err => {
+        alert(err);
+      });
     Alert.alert(
       'Cancel table?',
-      'You are about to cancel your table. You won\'t be saving 10% if you cancel. Proceed??',
+      'You are about to cancel your table. You won\'t be saving 10% if you cancel.',
       [
-        {text: 'Cancel', onPress: () => {
+        {text: 'Keep Table', onPress: () => {
           console.log('Cancel Pressed');
         }, style: 'cancel'},
-        {text: 'OK', onPress: () => {
+        {text: 'Cancel', onPress: () => {
           this.clearCode();
           }
         },
@@ -67,10 +73,16 @@ export class HomeScreen extends React.Component {
   clearCode = async () => {
     this.setState({promoCode:null});
     this.setState({timestamp:null});
+    this.setState({capacity:null});
+    this.setState({numberOfGuests:null});
+    this.setState({vendorId:null});
     try {
       await
       AsyncStorage.setItem('promoCode', '');
       AsyncStorage.setItem('timestamp', '');
+      AsyncStorage.setItem('capacity', '');
+      AsyncStorage.setItem('numberOfGuests', '');
+      AsyncStorage.setItem('vendorId', '');
       this.props.navigation.navigate('Home');
     } catch (error) {
       alert('Save error: '+error);
@@ -87,6 +99,21 @@ export class HomeScreen extends React.Component {
           .then((value) => {
             console.log('promoCode: '+value);
               this.setState({ 'promoCode': value })
+          });
+          AsyncStorage.getItem('capacity')
+          .then((value) => {
+            console.log('capacity: '+value);
+              this.setState({ 'capacity': value })
+          });
+          AsyncStorage.getItem('numberOfGuests')
+          .then((value) => {
+            console.log('numberOfGuests: '+value);
+              this.setState({ 'numberOfGuests': value })
+          });
+          AsyncStorage.getItem('vendorId')
+          .then((value) => {
+            console.log('vendorId: '+value);
+              this.setState({ 'vendorId': value })
           });
         }
       })
@@ -190,14 +217,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   promoCode: {
-    fontSize: 14,
-    fontWeight:'bold',
-    alignItems: 'center',
-    textAlign: 'center',
     marginBottom: 10,
   },
   promoCodeText: {
-    fontSize: 14,
+    fontSize: 20,
     fontWeight:'bold',
     alignItems: 'center',
     textAlign: 'center',
@@ -205,11 +228,11 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     paddingHorizontal: 20,
-    marginTop: 115,
+    marginTop: 85,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.5)',
   },
   welcomeContainer: {
     alignItems: 'center',

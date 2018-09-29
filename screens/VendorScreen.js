@@ -101,7 +101,7 @@ export class VendorScreen extends React.Component {
      {
       this.setState({ vendors: responseData });
       // this.setState({refreshing: false});
-        console.log(responseData);
+        // console.log(responseData);
      })
      .catch((error) => {
         console.log(error);
@@ -202,6 +202,16 @@ export class VendorScreen extends React.Component {
       lat: rowData.lat,
       lng: rowData.long
     }
+    let capArray = rowData.capacity.split(",");
+    // if (capArray==0) {alert('No tables available');}
+    if(capArray==0){
+      Alert.alert(
+        'There are no tables avaiable presently',
+        'Please select a restaurant with their green light on.',
+        { cancelable: false }
+      )
+      return;
+    }
     if(getDistance(p1,p2)>30){
       Alert.alert(
         'You are too far from the selected restaurant',
@@ -210,8 +220,6 @@ export class VendorScreen extends React.Component {
       )
       return;
     }
-    let capArray = rowData.capacity.split(",");
-    if (capArray==0) {return;}
     // alert(capArray);
     capArray = [...new Set(capArray)];
     // alert(capArray);

@@ -15,7 +15,7 @@ export class ThankYouScreen extends React.Component {
     Share.share({
       message: 'Find a table NOW and save 10% with the Greenlight Dining app',
       url: 'http://greenlightdining.com',
-      title: 'Eat NOW, and Save!'
+      title: 'Eat NOW, and Save 10%!'
     }, {
       // Android only:
       dialogTitle: 'Share Greenlight Dining app',

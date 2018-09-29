@@ -49,6 +49,9 @@ export class SuccessScreen extends React.Component {
         await
         AsyncStorage.setItem('promoCode', this.state.promoCode);
         AsyncStorage.setItem('timestamp', this.state.timestamp.toString());
+        AsyncStorage.setItem('capacity', this.state.capacity.toString());
+        AsyncStorage.setItem('numberOfGuests', this.state.numberOfGuests.toString());
+        AsyncStorage.setItem('vendorId', this.state.vendorId.toString());
       } catch (error) {
         alert('Save error: '+error);
       }
@@ -67,9 +70,9 @@ export class SuccessScreen extends React.Component {
     // debugger;
     capacity = capacity.replace(numberOfGuests, "");
     if (capacity!="") {
-      capacityArray = capacity.split(",").join('').split('');
+      capacityArray = capacity.split(",").filter(Number);
       if (capacityArray.length >= 1) {
-      capacity = capacity.split(",").join('').split('').join(",");
+      capacity = capacity.split(",").filter(Number).join(",");
       } else {
         capacity = "";
       }

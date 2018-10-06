@@ -6,7 +6,8 @@ import {
   Image,
   Alert,
   AsyncStorage,
-  CameraRoll
+  CameraRoll,
+  Keyboard
 } from 'react-native';
 import { WebBrowser, MapView, Video, Haptic } from 'expo';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
@@ -43,6 +44,7 @@ export class SuccessScreen extends React.Component {
   componentDidMount() {
     this.updateCapacity();
     this._saveCode();
+    Keyboard.dismiss();
   }
   _saveCode = async () => {
       try {

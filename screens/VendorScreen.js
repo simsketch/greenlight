@@ -206,7 +206,7 @@ export class VendorScreen extends React.Component {
     // if (capArray==0) {alert('No tables available');}
     if(capArray==0){
       Alert.alert(
-        'There are no tables avaiable presently',
+        'There are no tables available presently',
         'Please select a restaurant with their green light on.',
         { cancelable: false }
       )

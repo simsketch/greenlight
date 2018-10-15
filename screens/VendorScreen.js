@@ -175,25 +175,25 @@ export class VendorScreen extends React.Component {
     .catch;
   }
 
+  rad(x) {
+    return x * Math.PI / 180;
+  }
+  getDistance(p1, p2) {
+    var R = 6378137; // Earth’s mean radius in meter
+    var dLat = this.rad(p2.lat - p1.lat);
+    var dLong = this.rad(p2.lng - p1.lng);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.rad(p1.lat)) * Math.cos(this.rad(p2.lat)) *
+      Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c; // returns the distance in meter
+    var f = d*3.28084; // distance in feet
+    var m = Math.floor(f/5.28); // distance in feet
+    m = m/1000;
+    // return f+" feet"; 
+    return m.toFixed(2); 
+  }
   pressRow(rowData) {
-    function rad(x) {
-      return x * Math.PI / 180;
-    };
-    function getDistance(p1, p2) {
-      var R = 6378137; // Earth’s mean radius in meter
-      var dLat = rad(p2.lat - p1.lat);
-      var dLong = rad(p2.lng - p1.lng);
-      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(rad(p1.lat)) * Math.cos(rad(p2.lat)) *
-        Math.sin(dLong / 2) * Math.sin(dLong / 2);
-      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      var d = R * c; // returns the distance in meter
-      var f = d*3.28084; // distance in feet
-      var m = Math.floor(f/5.28); // distance in feet
-      m = m/1000;
-      // return f+" feet"; 
-      return m.toFixed(2); 
-    }
     let p1 = {
       lat: this.state.location.coords.latitude,
       lng: this.state.location.coords.longitude
@@ -212,7 +212,7 @@ export class VendorScreen extends React.Component {
       )
       return;
     }
-    if(getDistance(p1,p2)>30){
+    if(this.getDistance(p1,p2)>30){
       Alert.alert(
         'You are too far from the selected restaurant',
         'Please select a restaurant closer to your location.',
@@ -255,6 +255,38 @@ export class VendorScreen extends React.Component {
     // alert(text);
     const cuisinePref = this.props.navigation.getParam('cuisineState', 'All');
     console.log(cuisinePref);
+    // var vendorCount = 0;
+    var localVendors = vendors.filter((v) => {
+      let p1 = {
+        lat: this.state.location.coords.latitude,
+        lng: this.state.location.coords.longitude
+      }
+      let p2 = {
+        lat: v.lat,
+        lng: v.long
+      }
+      let d = this.getDistance(p1,p2);
+      // console.log(d);
+      // if(d<30) {
+      //   vendorCount = vendorCount + 1;
+      // }
+      return d<30;
+    })
+    // console.log("localVendors: "+localVendors);
+    if (localVendors == "") {
+      return (
+        <View style={styles.container}>
+        <ScrollView
+        style={styles.container}
+        >
+        <Text style={styles.titleBar}>Please make a selection</Text>
+          <Card style={{padding: 0,width:'100%'}} >
+        <Text style={styles.infoMessage}>There are no Greenlight Dining partner restaurants available in your area at this time.{"\n"}{"\n"}Contact app@greenlightdining.com for more information</Text>
+        </Card>
+        </ScrollView>
+        </View>
+      )
+    }
     return (
       <View style={styles.container}>
         <ScrollView
@@ -285,6 +317,22 @@ export class VendorScreen extends React.Component {
                 if(a.capacity.length > b.capacity.length) ret = -1;
                 if(a.capacity.length < b.capacity.length) ret = 1;
                 return ret;
+              })
+              .filter((v) => {
+                let p1 = {
+                  lat: this.state.location.coords.latitude,
+                  lng: this.state.location.coords.longitude
+                }
+                let p2 = {
+                  lat: v.lat,
+                  lng: v.long
+                }
+                let d = this.getDistance(p1,p2);
+                // console.log(d);
+                // if(d<30) {
+                //   vendorCount = vendorCount + 1;
+                // }
+                return d<30;
               })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
@@ -330,6 +378,8 @@ export class VendorScreen extends React.Component {
               })
             }
           </Card>
+          {/* { vendorCount > 0 && <Text>There are no Greenlight Dining partner restaurants available in your area at this time.</Text>} */}
+          {/* <Text>If nothing is listed, there are no Greenlight Dining partner restaurants available in your area at this time.</Text> */}
           <Button
             title="Logout"
             buttonStyle={{marginTop:0}}
@@ -378,6 +428,9 @@ const styles = StyleSheet.create({
     paddingBottom:40,
     marginBottom:0,
     height:30,
+  },
+  infoMessage: {
+    textAlign: 'center',
   },
 });
 

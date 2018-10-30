@@ -7,7 +7,10 @@ export default class App extends React.Component {
   state = {
     isLoadingComplete: false
   };
-
+  componentWillMount() {
+    // Expo.Updates.reload();
+    Expo.Updates.fetchUpdateAsync();
+  }
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
       return (

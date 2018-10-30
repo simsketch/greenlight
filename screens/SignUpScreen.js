@@ -150,8 +150,8 @@ export class SignUpScreen extends React.Component {
             checked={this.state.newsChecked}
             checkedColor="#00E676"
             uncheckedColor="#00E676"
-            onPress={() => this.setState({newsChecked:!this.state.newsChecked})} */}
-          />
+            onPress={() => this.setState({newsChecked:!this.state.newsChecked})}
+          /> */}
           <Button
             title="Sign Up"
             buttonStyle={{marginTop:50}}

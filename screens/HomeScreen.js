@@ -8,6 +8,7 @@ import {
   View,
   AsyncStorage,
   TouchableHighlight,
+  ActivityIndicator,
   Alert
 } from 'react-native';
 import { WebBrowser, Video } from 'expo';
@@ -15,6 +16,7 @@ import { tintColor } from '../constants/Colors.js';
 import { Hoshi } from 'react-native-textinput-effects';
 import { Dropdown } from 'react-native-material-dropdown';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
+import * as firebase from 'firebase';
 
 export class HomeScreen extends React.Component {
   constructor(props) {
@@ -24,11 +26,70 @@ export class HomeScreen extends React.Component {
       videoURI: Expo.Asset.fromModule(require('../assets/videos/food.mp4')).uri,
       // gifURI: Expo.Asset.fromModule(require('../assets/videos/food.gif')).uri,
       loginTitle: "Let\'s Eat",
+      attemptingLogin: true,
   };
   componentDidMount() {
-    this.getCode();
-    this.timer = setInterval(()=> this.getCode(), 3000);
+    const config = {
+      apiKey: "AIzaSyAXY8wIYsEhL1M0oNZIZ5-Ssx35B8n6xSc",
+      authDomain: "greenlight-dining.firebaseapp.com",
+      databaseURL: "https://greenlight-dining.firebaseio.com",
+      projectId: "greenlight-dining",
+      storageBucket: "greenlight-dining.appspot.com",
+      messagingSenderId: "971281383517"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config);
+    }
+    this.getCodeAndLogin();
+    this.timer = setInterval(()=> this.getCode(), 10000);
   }
+  onLogin = () => {
+    // alert(JSON.stringify(this.state.email));
+  
+  firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+    .then(this._storeLogin(this.state.email, this.state.password))
+    .then((user) => {
+      // this.props.navigation.navigate('Vendor');
+      this.props.navigation.navigate('Vendor', {
+        email: this.state.email
+      });
+      // alert("Welcome back! So you DO like saving 10% every meal!");
+      // If you need to do anything with the user, do it here
+      // The user will be logged in automatically by the
+      // `onAuthStateChanged` listener we set up in App.js earlier
+      // alert("Welcome back "+JSON.stringify(user.email));
+    })
+    .catch((error) => {
+      const { code, message } = error;
+      // For details of error codes, see the docs
+      // The message contains the default Firebase string
+      // representation of the error
+      alert(message);
+    });
+  }
+  retrieveEmailAndPassword() {
+    console.log('attempting login')
+    this.setState({ 'attemptingLogin': true });
+    AsyncStorage.getItem('emailAddress')
+    .then((value) => {
+        // alert(value);
+        this.setState({ 'email': value });
+        AsyncStorage.getItem('password')
+        .then((value) => {
+            // alert(value);
+            this.setState({ 'password': value });
+            this.setState({ 'attemptingLogin': false });
+            this.props.navigation.navigate('Vendor', {
+              email: this.state.email
+            });
+          });
+    })
+    .catch(err, function() {
+      console.log(err);
+      this.setState({ 'attemptingLogin': false });
+    })
+  }
+  
   cancelTable = () => {
     const id = this.state.vendorId;
     const numberOfGuests = this.state.numberOfGuests;
@@ -88,6 +149,52 @@ export class HomeScreen extends React.Component {
       alert('Save error: '+error);
     }
   }
+  getCodeAndLogin() {
+    AsyncStorage.getItem('timestamp')
+    .then((value) => {
+      console.log('timestamp: '+value);
+        this.setState({ 'timestamp': value });
+        console.log(typeof value);
+        // console.log(typeof value == string && value.length > 0)
+        if (typeof value == 'string' && value.length > 0) {
+          console.log('timestamp attempting login false');
+          this.setState({'attemptingLogin':false})
+        }
+        else {
+        AsyncStorage.getItem('rememberMeChecked')
+        .then((value) => {
+            // alert(value);
+            this.setState({ 'rememberMeChecked': Boolean(value) })
+            if (value) {
+              this.retrieveEmailAndPassword();
+            }
+          })
+        }
+        const diff = new Date().getTime() - new Date(+(value));
+        if(diff<1210000) {
+          AsyncStorage.getItem('promoCode')
+          .then((value) => {
+            console.log('promoCode: '+value);
+              this.setState({ 'promoCode': value })
+          });
+          AsyncStorage.getItem('capacity')
+          .then((value) => {
+            console.log('capacity: '+value);
+              this.setState({ 'capacity': value })
+          });
+          AsyncStorage.getItem('numberOfGuests')
+          .then((value) => {
+            console.log('numberOfGuests: '+value);
+              this.setState({ 'numberOfGuests': value })
+          });
+          AsyncStorage.getItem('vendorId')
+          .then((value) => {
+            console.log('vendorId: '+value);
+              this.setState({ 'vendorId': value })
+          });
+        }
+      })
+  }
   getCode() {
     AsyncStorage.getItem('timestamp')
     .then((value) => {
@@ -139,6 +246,24 @@ export class HomeScreen extends React.Component {
       );
     }
   }
+  renderLoginButtons() {
+    if (!this.state.promoCode) {
+      return(
+        <View>
+        <Button
+          title="Sign Up"
+          backgroundColor="#00E676"
+          onPress={() => this.props.navigation.navigate('SignUp')}
+        />
+        <Button
+          title="Login"
+          backgroundColor="#39A675"
+          onPress={() => this.props.navigation.navigate('Login')}
+        />
+        </View>
+      )
+    }
+  }
   buzzWords() {
       return (
           <Text style={styles.buzzWords}>
@@ -151,6 +276,8 @@ export class HomeScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} contentContainerStyle={styles.contentContainer}>
+      { this.state.attemptingLogin ? <ActivityIndicator size="small" color="#00ff00" /> : (
+      <View>
         <Video
           source={{ uri: 'http://teragigame.ga/greenlight/food.mp4' }}
           rate={1.0}
@@ -178,21 +305,14 @@ export class HomeScreen extends React.Component {
             />
             {this.welcomeMessage()}
             {this.renderPromoCode()}
-            <Button
-              title="Sign Up"
-              backgroundColor="#00E676"
-              onPress={() => this.props.navigation.navigate('SignUp')}
-            />
-            <Button
-              title="Login"
-              backgroundColor="#39A675"
-              onPress={() => this.props.navigation.navigate('Login')}
-            />
+            {this.renderLoginButtons()}
             </View>
         </ScrollView>
       </View>
     )
-  }
+            }
+      </View>
+  )}
 }
 
 const styles = StyleSheet.create({

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ActivityIndicator
 } from 'react-native';
 import { WebBrowser } from 'expo';
 import { Hoshi } from 'react-native-textinput-effects';
@@ -25,6 +26,7 @@ export class LoginScreen extends React.Component {
   }
   state = {
     rememberMeChecked: true,
+    attemptingLogin: false,
     // usernameInput: AsyncStorage.getItem('emailAddress'),
     // passwordInput: AsyncStorage.getItem('password'),
     // usernameInput: AsyncStorage.getItem('emailAddress') || 'username',
@@ -62,6 +64,7 @@ export class LoginScreen extends React.Component {
       })
   }
   retrieveEmailAndPassword() {
+    this.setState({ 'attemptingLogin': true });
     AsyncStorage.getItem('emailAddress')
     .then((value) => {
         // alert(value);
@@ -71,7 +74,8 @@ export class LoginScreen extends React.Component {
     .then((value) => {
         // alert(value);
         this.setState({ 'password': value })
-      })
+      });
+    this.setState({ 'attemptingLogin': false });
   }
   componentDidMount() {
     // this.retrieveEmailAndPassword();
@@ -123,29 +127,30 @@ export class LoginScreen extends React.Component {
       try {
         await
         // alert(JSON.stringify(this.state.usernameInput));
-        AsyncStorage.setItem('emailAddress', un);
         // alert(AsyncStorage.getItem('emailAddress').toString());
         // alert(JSON.stringify(this.state.passwordInput));
+        // AsyncStorage.multiSet([['emailAddress', un], ['password', pw], ['rememberMeChecked', 'true']], function() {});
+        AsyncStorage.setItem('emailAddress', un);
         AsyncStorage.setItem('password', pw);
         AsyncStorage.setItem('rememberMeChecked', 'true');
       } catch (error) {
         alert('There was an error saving your login information to this device.');
       }
     }
-    else {
-      // this.clearFields();
-      try {
-        await
-        // alert(JSON.stringify(this.state.usernameInput));
-        AsyncStorage.setItem('emailAddress', '');
-        // alert(AsyncStorage.getItem('emailAddress').toString());
-        // alert(JSON.stringify(this.state.passwordInput));
-        AsyncStorage.setItem('password', '');
-        AsyncStorage.setItem('rememberMeChecked', 'false');
-      } catch (error) {
-        alert('There was an error saving your login information to this device.');
-      }
-    }
+    // else {
+    //   // this.clearFields();
+    //   try {
+    //     await
+    //     // alert(JSON.stringify(this.state.usernameInput));
+    //     AsyncStorage.setItem('emailAddress', '');
+    //     // alert(AsyncStorage.getItem('emailAddress').toString());
+    //     // alert(JSON.stringify(this.state.passwordInput));
+    //     AsyncStorage.setItem('password', '');
+    //     AsyncStorage.setItem('rememberMeChecked', 'false');
+    //   } catch (error) {
+    //     alert('There was an error saving your login information to this device.');
+    //   }
+    // }
     // this.props.navigation.navigate('Find');
   }
   sendPasswordReset() {
@@ -213,6 +218,8 @@ export class LoginScreen extends React.Component {
     // alert(JSON.stringify(this.state.email));
     return (
       <View style={styles.container}>
+      { this.state.attemptingLogin ? <ActivityIndicator size="small" color="#00ff00" /> : (
+        <View>
         <Text style={styles.titleBar}>Login Screen</Text>
         <Hoshi
           label="Email Address"
@@ -255,6 +262,7 @@ export class LoginScreen extends React.Component {
           backgroundColor="#333"
           onPress={() => this.sendPasswordReset()}
         />
+        </View>)}
       </View>
     );
   }

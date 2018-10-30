@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppRegistry, Alert, AsyncStorage, View, ScrollView, Text, Image, TouchableHighlight, Platform, StyleSheet, FlatList, Share, Constants, Location, Permissions } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 
 import { WebBrowser, MapView, Video } from 'expo';
@@ -25,7 +25,14 @@ export default createStackNavigator(
     Find: FindScreen,
     Login: LoginScreen,
     SignUp: SignUpScreen,
-    Vendor: VendorScreen,
+    Vendor: {
+      screen: VendorScreen,
+      navigationOptions: () => ({
+        title: `Greenlight Dining`,
+        headerBackTitle: null,
+        headerLeft: null
+      }),
+    },
     Success: SuccessScreen,
     Map: MapScreen,
     ThankYou: ThankYouScreen,

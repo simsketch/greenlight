@@ -9,6 +9,7 @@ import {
   Platform,
   FlatList,
   RefreshControl,
+  AsyncStorage,
   Keyboard
 } from 'react-native';
 import axios from 'axios';
@@ -22,7 +23,7 @@ export class VendorScreen extends React.Component {
     super(props);
   }
   state = {
-    location: null,
+    location: {coords:{latitude:null,longitude:null}},
     errorMessage: null,
     distanceUrl: "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=26.4614299,-80.0705547;26.5748954,-80.0777257&travelMode=driving&key=AtfrjzyT3EQQAuKMVr0h8OzC9m23-ApMCZMSwKBioRn_Go6vt6tRX-3osO8Pcm-E",
     vendors: [],
@@ -46,6 +47,7 @@ export class VendorScreen extends React.Component {
       this.setState({
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
+      alert('This emulator is not supported');
     } else {
       this._getLocationAsync();
     }
@@ -76,9 +78,12 @@ export class VendorScreen extends React.Component {
   componentWillUnmount() {
     clearInterval(this.timer);
   }
-  signOut = (propps) => {
-    firebase.auth().signOut().then(function() {
-      propps.navigation.navigate('Home');
+  signOut = (props) => {
+      // AsyncStorage.setItem('emailAddress', '');
+      // AsyncStorage.setItem('password', '');
+      AsyncStorage.setItem('rememberMeChecked', 'true');
+      firebase.auth().signOut().then(function() {
+      props.navigation.navigate('Home');
       Alert.alert(
         'You have been logged out',
         'We\'ll see you next time you\'re hungry!',
@@ -115,10 +120,12 @@ export class VendorScreen extends React.Component {
       this.setState({
         errorMessage: 'Permission to access location was denied',
       });
-    }
-
+      alert('You must enable location services for full functionality.');
+    } else {
     let location = await Location.getCurrentPositionAsync({});
     this.setState({ location });
+    // console.table(location);
+    }
   };
   saveOrder(rowData) {
     //alert(JSON.stringify(rowData));
@@ -212,14 +219,14 @@ export class VendorScreen extends React.Component {
       )
       return;
     }
-    if(this.getDistance(p1,p2)>30){
-      Alert.alert(
-        'You are too far from the selected restaurant',
-        'Please select a restaurant closer to your location.',
-        { cancelable: false }
-      )
-      return;
-    }
+    // if(this.getDistance(p1,p2)>30){
+    //   Alert.alert(
+    //     'You are too far from the selected restaurant',
+    //     'Please select a restaurant closer to your location.',
+    //     { cancelable: false }
+    //   )
+    //   return;
+    // }
     // alert(capArray);
     capArray = [...new Set(capArray)];
     // alert(capArray);
@@ -270,7 +277,7 @@ export class VendorScreen extends React.Component {
       // if(d<30) {
       //   vendorCount = vendorCount + 1;
       // }
-      return d<30;
+      return d<3000;
     })
     // console.log("localVendors: "+localVendors);
     if (localVendors == "") {
@@ -281,8 +288,14 @@ export class VendorScreen extends React.Component {
         >
         <Text style={styles.titleBar}>Please make a selection</Text>
           <Card style={{padding: 0,width:'100%'}} >
-        <Text style={styles.infoMessage}>There are no Greenlight Dining partner restaurants available in your area at this time.{"\n"}{"\n"}Contact app@greenlightdining.com for more information</Text>
+        <Text style={styles.infoMessage}>There are no Greenlight Dining partner restaurants available in your area at this time. Location services must be turned on in order to experience full functionality.{"\n"}{"\n"}Contact app@greenlightdining.com for more information</Text>
         </Card>
+        <Button
+            title="Logout"
+            buttonStyle={{marginTop:0}}
+            backgroundColor="#666"
+            onPress={() => this.signOut(this.props)}
+          />
         </ScrollView>
         </View>
       )
@@ -318,22 +331,22 @@ export class VendorScreen extends React.Component {
                 if(a.capacity.length < b.capacity.length) ret = 1;
                 return ret;
               })
-              .filter((v) => {
-                let p1 = {
-                  lat: this.state.location.coords.latitude,
-                  lng: this.state.location.coords.longitude
-                }
-                let p2 = {
-                  lat: v.lat,
-                  lng: v.long
-                }
-                let d = this.getDistance(p1,p2);
-                // console.log(d);
-                // if(d<30) {
-                //   vendorCount = vendorCount + 1;
-                // }
-                return d<30;
-              })
+              // .filter((v) => {
+              //   let p1 = {
+              //     lat: this.state.location.coords.latitude,
+              //     lng: this.state.location.coords.longitude
+              //   }
+              //   let p2 = {
+              //     lat: v.lat,
+              //     lng: v.long
+              //   }
+              //   let d = this.getDistance(p1,p2);
+              //   // console.log(d);
+              //   // if(d<30) {
+              //   //   vendorCount = vendorCount + 1;
+              //   // }
+              //   return d<30;
+              // })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
                 let tablesAvailable = "No tables available";

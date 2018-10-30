@@ -34,7 +34,8 @@
       }
     },
     "android": {
-      "package": "com.a2zCreative.greenlight"
+      "package": "com.a2zCreative.greenlight",
+      "versionCode": 2
     }
   }
 }

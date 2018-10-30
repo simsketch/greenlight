@@ -172,7 +172,7 @@ export class SuccessScreen extends React.Component {
         <View style={styles.overlay}>
           <View style={styles.overlayText}>
           <Text style={{ fontSize:14, textAlign: 'center', color: '#fff', backgroundColor:'#333', padding:10 }}>
-          Thank you for choosing the{"\n"}Greenlight Dining App.{"\n"}{"\n"}Your table and 10% discount{"\n"}are waiting for you.{"\n"}{"\n"}Please provide this confirmation code upon your arrival.{"\n"}{"\n"}This code is only valid for 15 minutes!</Text>
+          Thank you for choosing the Greenlight Dining App. Your table and 10% discount are waiting for you. Please provide this confirmation code upon your arrival.{"\n"}{"\n"}This code is only valid for 15 minutes!</Text>
           <Text selectable style={{fontSize:48,fontWeight:'bold',textAlign:'center',backgroundColor:'#fff',width:'100%',marginTop:10}}>{this.state.promoCode}</Text>
           <Text style={{ marginTop:10, textAlign: 'center', color: '#fff' }}>
           EAT NOW!
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     paddingHorizontal: 20,
-    marginTop: 85,
+    marginTop: 20,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

@@ -219,14 +219,14 @@ export class VendorScreen extends React.Component {
       )
       return;
     }
-    // if(this.getDistance(p1,p2)>30){
-    //   Alert.alert(
-    //     'You are too far from the selected restaurant',
-    //     'Please select a restaurant closer to your location.',
-    //     { cancelable: false }
-    //   )
-    //   return;
-    // }
+    if(this.getDistance(p1,p2)>30){
+      Alert.alert(
+        'You are too far from the selected restaurant',
+        'Please select a restaurant closer to your location.',
+        { cancelable: false }
+      )
+      return;
+    }
     // alert(capArray);
     capArray = [...new Set(capArray)];
     // alert(capArray);
@@ -277,7 +277,7 @@ export class VendorScreen extends React.Component {
       // if(d<30) {
       //   vendorCount = vendorCount + 1;
       // }
-      return d<3000;
+      return d<30;
     })
     // console.log("localVendors: "+localVendors);
     if (localVendors == "") {
@@ -331,22 +331,22 @@ export class VendorScreen extends React.Component {
                 if(a.capacity.length < b.capacity.length) ret = 1;
                 return ret;
               })
-              // .filter((v) => {
-              //   let p1 = {
-              //     lat: this.state.location.coords.latitude,
-              //     lng: this.state.location.coords.longitude
-              //   }
-              //   let p2 = {
-              //     lat: v.lat,
-              //     lng: v.long
-              //   }
-              //   let d = this.getDistance(p1,p2);
-              //   // console.log(d);
-              //   // if(d<30) {
-              //   //   vendorCount = vendorCount + 1;
-              //   // }
-              //   return d<30;
-              // })
+              .filter((v) => {
+                let p1 = {
+                  lat: this.state.location.coords.latitude,
+                  lng: this.state.location.coords.longitude
+                }
+                let p2 = {
+                  lat: v.lat,
+                  lng: v.long
+                }
+                let d = this.getDistance(p1,p2);
+                // console.log(d);
+                // if(d<30) {
+                //   vendorCount = vendorCount + 1;
+                // }
+                return d<30;
+              })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
                 let tablesAvailable = "No tables available";

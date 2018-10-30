@@ -7,18 +7,19 @@ import AppNavigator from '../navigation/AppNavigator';
 const styles = StyleSheet.create({
   image: {
     width: 320,
-    height: 320,
+    height: 0,
   },
   logoImage: {
     width: 240,
-    height: 160,
+    height: 0,
   },
   text: {
     color: '#666',
-    textAlign: 'justify',
+    textAlign: 'center',
   },
   title: {
-    color: '#666',
+    color: '#57B367',
+    fontWeight: 'bold',
     textAlign: 'center',
   }
 });
@@ -26,60 +27,50 @@ const styles = StyleSheet.create({
 const slides = [
   {
     key: 'slide-one',
-    title: 'Welcome to\nGreenlight Dining\n\nEat NOW!',
+    title: '\n\nWelcome to\nGreenlight Dining\n\nEat NOW!',
     titleStyle: styles.title,
-    text: 'Restaurants have available tables NOW and you want to EAT NOW as well as SAVE 10% off the entire check.\n\nYou can filter options such as cuisine, number of guests, and how far to travel.',
+    text: 'Choose a restaurant near you that has a table available NOW.\n\nA Greenlight next to the restaurant name indicates that a table is available for immediate seating. Just "capture" the Greenlight and head on over to be seated without a wait.',
     textStyle: styles.text,
-    image: require('../assets/images/slide-tables.png'),
-    imageStyle: styles.image,
-    backgroundColor: '#caffe5',
+    // image: require('../assets/images/slide-tables.png'),
+    // imageStyle: styles.image,
+    backgroundColor: '#ffffff',
   },
-  {
-    key: 'slide-two',
-    title: 'How it Works',
-    titleStyle: styles.title,
-    text: 'When a restaurant turns their Greenlight™ on, you can claim the table immediately!\n\nNever wait for a table, make a reservation, or pay full price ever again!',
-    textStyle: styles.text,
-    image: require('../assets/images/slide-diners.png'),
-    imageStyle: styles.image,
-    backgroundColor: '#caffe5',
-  },
-  {
-    key: 'slide-three',
-    title: 'EAT NOW!\nSave 10%',
-    titleStyle: styles.title,
-    text: 'Relax knowing you\'ll never have to worry about finding a place to eat.\n\nYou get a discount, immediate seating and the restaurant gets a new customer. Everybody wins!',
-    textStyle: styles.text,
-    image: require('../assets/images/slide-relax.png'),
-    imageStyle: styles.image,
-    backgroundColor: '#caffe5',
-  }
+  // {
+  //   key: 'slide-two',
+  //   title: 'How it Works',
+  //   titleStyle: styles.title,
+  //   text: 'When a restaurant turns their Greenlight™ on, you can claim the table immediately!\n\nNever wait for a table, make a reservation, or pay full price ever again!',
+  //   textStyle: styles.text,
+  //   image: require('../assets/images/slide-diners.png'),
+  //   imageStyle: styles.image,
+  //   backgroundColor: '#caffe5',
+  // },
+  // {
+  //   key: 'slide-three',
+  //   title: 'EAT NOW!\nSave 10%',
+  //   titleStyle: styles.title,
+  //   text: 'Relax knowing you\'ll never have to worry about finding a place to eat.\n\nYou get a discount, immediate seating and the restaurant gets a new customer. Everybody wins!',
+  //   textStyle: styles.text,
+  //   image: require('../assets/images/slide-relax.png'),
+  //   imageStyle: styles.image,
+  //   backgroundColor: '#caffe5',
+  // }
 ];
 
 export default class IntroScreen extends React.Component {
   constructor(props) {
     super(props);
-    // const viewed = retrieveItem('viewedIntroSlider');
   }
   state = {
     showRealApp: false,
-    viewedIntro: false
   }
   componentWillMount() {
-    const key = "viewedIntroSlider";
-    this.retrieveItem(key).then(status => {
-      this.setState({ isChecked: status === true });
-    })
-  }
-  retrieveItem = async (key) => {
-    try {
-      const retrievedItem =  await AsyncStorage.getItem(key);
-      const item = JSON.parse(retrievedItem);
-      return item;
-    } catch (error) {
-      console.log(error.message);
-    }
-    return
+    AsyncStorage.getItem('viewedIntroSlider')
+    .then((value) => {
+      console.log('viewedIntroSlider: '+value);
+        this.setState({ 'viewedIntroSlider': value })
+    });
+    AsyncStorage.setItem('viewedIntroSlider', 'true');
   }
   _renderNextButton = () => {
     return (
@@ -140,23 +131,24 @@ export default class IntroScreen extends React.Component {
   render() {
     // alert(JSON.stringify(AsyncStorage.getAllKeys()));
     // alert(this.state.viewedIntroSlider);
+    console.log("viewedIntro? "+this.state.viewedIntroSlider);
     if (this.state.showRealApp || this.state.viewedIntroSlider == 'true') {
       return <AppNavigator/>;
     } else {
-      // return (
-      //   <AppIntroSlider
-      //   slides={slides}
-      //   renderDoneButton={this._renderDoneButton}
-      //   renderNextButton={this._renderNextButton}
-      //   renderPrevButton={this._renderPrevButton}
-      //   renderSkipButton={this._renderSkipButton}
-      //   onDone={this._onDone}
-      //   onSkip={this._onDone}
-      //   showSkipButton={true}
-      //   showPrevButton={true}
-      //   />
-      // );
-      return <AppNavigator/>;
+      return (
+        <AppIntroSlider
+        slides={slides}
+        renderDoneButton={this._renderDoneButton}
+        renderNextButton={this._renderNextButton}
+        renderPrevButton={this._renderPrevButton}
+        renderSkipButton={this._renderSkipButton}
+        onDone={this._onDone}
+        onSkip={this._onDone}
+        showSkipButton={true}
+        showPrevButton={true}
+        />
+      );
+      // return <AppNavigator/>;
     }
   }
 }

@@ -10,11 +10,12 @@ import {
   FlatList,
   RefreshControl,
   AsyncStorage,
-  Keyboard
+  Image,
+  Keyboard,
 } from 'react-native';
 import axios from 'axios';
 import { Dropdown } from 'react-native-material-dropdown';
-import { Constants, Location, Permissions } from 'expo';
+import { Constants, Location, Permissions, WebBrowser } from 'expo';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
 import * as firebase from 'firebase';
 
@@ -43,14 +44,14 @@ export class VendorScreen extends React.Component {
   //     });
   // }
   componentWillMount() {
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState({
-        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-      });
-      alert('This emulator is not supported');
-    } else {
       this._getLocationAsync();
-    }
+    // if (Platform.OS === 'android' && !Constants.isDevice) {
+    //   this.setState({
+    //     errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+    //   });
+    //   alert('This emulator is not supported');
+    // } else {
+    // }
     const config = {
       apiKey: "AIzaSyAXY8wIYsEhL1M0oNZIZ5-Ssx35B8n6xSc",
       authDomain: "greenlight-dining.firebaseapp.com",
@@ -240,6 +241,9 @@ export class VendorScreen extends React.Component {
       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
       // {text: 'OK', onPress: () => this.props.navigation.navigate('Success', rowData)},
     ];
+    if (Platform.OS === 'android') {
+      okCancel.push({text: 'OK', onPress: () => this.props.navigation.navigate('Success', rowData)});
+    }
     let newArray = newCapArray.concat(okCancel);
     Alert.alert(
       'Would you like to proceed and save 10%?',
@@ -250,6 +254,9 @@ export class VendorScreen extends React.Component {
     // alert("Confirm table?");
     //this.props.navigation.navigate('Success', rowData);
     console.log(rowData);
+  }
+  openLink() {
+    WebBrowser.openBrowserAsync('https://www.budweiser.com/en/home.html');
   }
   render() {
     let text = 'Waiting...';
@@ -288,6 +295,13 @@ export class VendorScreen extends React.Component {
         >
         <Text style={styles.titleBar}>Please make a selection</Text>
           <Card style={{padding: 0,width:'100%'}} >
+          <TouchableHighlight
+          onPress={()=>this.openLink()}>
+          <Image
+          source={{ uri: 'http://teragigame.ga/greenlight/bannerad.jpg' }}
+          style={{ width: '100%', height: 50, marginBottom: 20 }}
+          />
+          </TouchableHighlight>
         <Text style={styles.infoMessage}>There are no Greenlight Dining partner restaurants available in your area at this time. Location services must be turned on in order to experience full functionality.{"\n"}{"\n"}Contact app@greenlightdining.com for more information</Text>
         </Card>
         <Button
@@ -320,6 +334,13 @@ export class VendorScreen extends React.Component {
             data={cuisine}
             /> */}
           <Card style={{padding: 0,width:'100%'}} >
+          <TouchableHighlight
+          onPress={()=>this.openLink()}>
+          <Image
+          source={{ uri: 'http://teragigame.ga/greenlight/bannerad.jpg' }}
+          style={{ width: '100%', height: 50, marginBottom: 20 }}
+          />
+          </TouchableHighlight>
             {
               // .sort((a, b) => a.cuisine > b.cuisine)
               [].concat(vendors)
@@ -366,7 +387,7 @@ export class VendorScreen extends React.Component {
                     containerStyle={{ alignContent: 'center' }}
                     badge={{ value: 'o', textStyle: { color: 'white' }, containerStyle: { backgroundColor: lightOn, width:25 } }}
                     title={v.name}
-                    titleStyle={{marginLeft:40}}
+                    titleStyle={{marginLeft:40, whiteSpace: 'normal', fontSize: 12, fontWeight:'bold', color:'#00e676'}}
                     subtitle={
                       <Text style={{marginLeft:40,height:60,fontSize:12}}>
                       {tablesAvailable}{"\n"}{v.cuisine}{"\n"}{v.price}</Text>
@@ -440,6 +461,16 @@ const styles = StyleSheet.create({
     padding:20,
     paddingBottom:40,
     marginBottom:0,
+    height:30,
+  },
+  advertisement: {
+    backgroundColor: '#333',
+    alignSelf: 'stretch',
+    textAlign: 'center',
+    color: '#fff',
+    padding:20,
+    paddingBottom:40,
+    marginBottom:20,
     height:30,
   },
   infoMessage: {

@@ -41,7 +41,7 @@ export class HomeScreen extends React.Component {
       firebase.initializeApp(config);
     }
     this.getCodeAndLogin();
-    this.timer = setInterval(()=> this.getCode(), 10000);
+    this.timer = setInterval(()=> this.getCodeAndLogin(), 4000);
   }
   onLogin = () => {
     // alert(JSON.stringify(this.state.email));
@@ -82,7 +82,11 @@ export class HomeScreen extends React.Component {
             this.props.navigation.navigate('Vendor', {
               email: this.state.email
             });
-          });
+          })
+        .catch(err, function() {
+          console.log(err);
+          this.setState({ 'attemptingLogin': false });
+        })
     })
     .catch(err, function() {
       console.log(err);
@@ -118,7 +122,7 @@ export class HomeScreen extends React.Component {
       'You are about to cancel your table. You won\'t be saving 10% if you cancel.',
       [
         {text: 'Keep Table', onPress: () => {
-          console.log('Cancel Pressed');
+          // console.log('Keeping table');
         }, style: 'cancel'},
         {text: 'Cancel', onPress: () => {
           this.clearCode();
@@ -144,7 +148,7 @@ export class HomeScreen extends React.Component {
       AsyncStorage.setItem('capacity', '');
       AsyncStorage.setItem('numberOfGuests', '');
       AsyncStorage.setItem('vendorId', '');
-      this.props.navigation.navigate('Home');
+      this.props.navigation.navigate('Vendor');
     } catch (error) {
       alert('Save error: '+error);
     }
@@ -152,13 +156,12 @@ export class HomeScreen extends React.Component {
   getCodeAndLogin() {
     AsyncStorage.getItem('timestamp')
     .then((value) => {
-      console.log('timestamp: '+value);
+      // console.log('timestamp: '+value);
         this.setState({ 'timestamp': value });
-        console.log(typeof value);
+        // console.log(typeof value);
         // console.log(typeof value == string && value.length > 0)
         if (typeof value == 'string' && value.length > 0) {
           console.log('timestamp attempting login false');
-          this.setState({'attemptingLogin':false})
         }
         else {
         AsyncStorage.getItem('rememberMeChecked')
@@ -194,6 +197,7 @@ export class HomeScreen extends React.Component {
           });
         }
       })
+      this.setState({'attemptingLogin':false})
   }
   getCode() {
     AsyncStorage.getItem('timestamp')

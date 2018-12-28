@@ -29,6 +29,8 @@ export class VendorScreen extends React.Component {
     distanceUrl: "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=26.4614299,-80.0705547;26.5748954,-80.0777257&travelMode=driving&key=AtfrjzyT3EQQAuKMVr0h8OzC9m23-ApMCZMSwKBioRn_Go6vt6tRX-3osO8Pcm-E",
     vendors: [],
     refreshing: false,
+    guestsArray: {},
+    numberOfGuests: null
   }
   // _retrieveVendors() {
   //   axios.get('https://greenlight.now.sh/api/vendors')
@@ -63,6 +65,13 @@ export class VendorScreen extends React.Component {
     if (!firebase.apps.length) {
       firebase.initializeApp(config);
     }
+    var numberArray = [];
+    for(var i = 1; i <= 20; i++){
+        numberArray.push({value:i});
+    }
+    this.setState({
+      guestsArray: numberArray
+    })
   }
   componentDidMount() {
     Keyboard.dismiss();
@@ -145,7 +154,7 @@ export class VendorScreen extends React.Component {
     newEntry.vendorId = rowData._id;
     newEntry.vendorName = rowData.name;
     newEntry.userId = this.props.navigation.getParam('email', 'testuser@greenlightdining.com')
-    newEntry.numberOfGuests = rowData.guests;
+    newEntry.numberOfGuests = this.state.numberOfGuests;
     newEntry.capacity = rowData.capacity;
     newEntry.promoCode = Math.floor(Math.random()*16777215).toString(16).toUpperCase();
     newEntry.userLat = this.state.location.coords.latitude;
@@ -170,7 +179,7 @@ export class VendorScreen extends React.Component {
         location: this.state.location.coords,
         vendorName: newEntry.vendorName,
         vendorId: newEntry.vendorId,
-        numberOfGuests: newEntry.numberOfGuests,
+        numberOfGuests: this.state.numberOfGuests,
         capacity: newEntry.capacity,
         timestamp: newEntry.timestamp
       }
@@ -220,7 +229,15 @@ export class VendorScreen extends React.Component {
       )
       return;
     }
-    if(this.getDistance(p1,p2)>30){
+    if(!this.state.numberOfGuests){
+      Alert.alert(
+        'You need to select the number of guests',
+        'Please select the number in your party before capturing a green light.',
+        { cancelable: false }
+      )
+      return;
+    }
+    if(!__DEV__ && this.getDistance(p1,p2)>30){
       Alert.alert(
         'You are too far from the selected restaurant',
         'Please select a restaurant closer to your location.',
@@ -245,11 +262,12 @@ export class VendorScreen extends React.Component {
       okCancel.push({text: 'OK', onPress: () => this.props.navigation.navigate('Success', rowData)});
     }
     let newArray = newCapArray.concat(okCancel);
+    rowData.guests = this.state.numberOfGuests;
     Alert.alert(
       'Would you like to proceed and save 10%?',
-      'Confirm the number of guests in your party.',
-      newArray,
-      { cancelable: false }
+      'Confirm your table by pressing OK.',
+      [{text: 'OK', onPress: () => this.saveOrder(rowData)}],
+      { cancelable: true }
     )
     // alert("Confirm table?");
     //this.props.navigation.navigate('Success', rowData);
@@ -257,6 +275,11 @@ export class VendorScreen extends React.Component {
   }
   openLink() {
     WebBrowser.openBrowserAsync('https://www.budweiser.com/en/home.html');
+  }
+  onChangeText = async (text) => {
+    this.setState({
+      numberOfGuests:text
+    })
   }
   render() {
     let text = 'Waiting...';
@@ -284,7 +307,11 @@ export class VendorScreen extends React.Component {
       // if(d<30) {
       //   vendorCount = vendorCount + 1;
       // }
-      return d<30;
+      if(__DEV__) {
+        return d;
+      } else {
+        return d<30;
+      }
     })
     // console.log("localVendors: "+localVendors);
     if (localVendors == "") {
@@ -295,6 +322,11 @@ export class VendorScreen extends React.Component {
         >
         <Text style={styles.titleBar}>Please make a selection</Text>
           <Card style={{padding: 0,width:'100%'}} >
+          <Dropdown
+            label='Number of Guests'
+            onChangeText={this.onChangeText}
+            data={this.state.guestsArray}
+          />
           <TouchableHighlight
           onPress={()=>this.openLink()}>
           <Image
@@ -334,6 +366,11 @@ export class VendorScreen extends React.Component {
             data={cuisine}
             /> */}
           <Card style={{padding: 0,width:'100%'}} >
+          <Dropdown
+            label='Number of Guests'
+            onChangeText={this.onChangeText}
+            data={this.state.guestsArray}
+          />
           <TouchableHighlight
           onPress={()=>this.openLink()}>
           <Image
@@ -366,7 +403,11 @@ export class VendorScreen extends React.Component {
                 // if(d<30) {
                 //   vendorCount = vendorCount + 1;
                 // }
+                if(__DEV__) {
+                  return d;
+                } else {
                 return d<30;
+                }
               })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
@@ -387,7 +428,7 @@ export class VendorScreen extends React.Component {
                     containerStyle={{ alignContent: 'center' }}
                     badge={{ value: 'o', textStyle: { color: 'white' }, containerStyle: { backgroundColor: lightOn, width:25 } }}
                     title={v.name}
-                    titleStyle={{marginLeft:40, whiteSpace: 'normal', fontSize: 12, fontWeight:'bold', color:'#00e676'}}
+                    titleStyle={{marginLeft:40, fontSize: 12, fontWeight:'bold', color:'#00e676'}}
                     subtitle={
                       <Text style={{marginLeft:40,height:60,fontSize:12}}>
                       {tablesAvailable}{"\n"}{v.cuisine}{"\n"}{v.price}</Text>

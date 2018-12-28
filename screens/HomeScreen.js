@@ -205,7 +205,7 @@ export class HomeScreen extends React.Component {
       console.log('timestamp: '+value);
         this.setState({ 'timestamp': value });
         const diff = new Date().getTime() - new Date(+(value));
-        if(diff<1210000) {
+        if(diff<1000000) {
           AsyncStorage.getItem('promoCode')
           .then((value) => {
             console.log('promoCode: '+value);

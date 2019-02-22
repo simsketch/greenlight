@@ -70,13 +70,19 @@ export class LoginScreen extends React.Component {
         // alert(value);
         this.setState({ 'email': value })
         this.setState({ 'attemptingLogin': false });
+    })
+    .catch(err, function() {
+      console.log(err);
     });
     AsyncStorage.getItem('password')
     .then((value) => {
-        // alert(value);
+        alert(value);
         this.setState({ 'password': value })
         this.setState({ 'attemptingLogin': false });
-      });
+    })
+    .catch(err, function() {
+      console.log(err);
+    });
   }
   componentDidMount() {
     // this.retrieveEmailAndPassword();

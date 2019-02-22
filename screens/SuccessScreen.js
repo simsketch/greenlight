@@ -7,7 +7,8 @@ import {
   Alert,
   AsyncStorage,
   CameraRoll,
-  Keyboard
+  Keyboard,
+  Vibration
 } from 'react-native';
 import { WebBrowser, MapView, Video, Haptic } from 'expo';
 import { Card, Button, Icon, CheckBox, ListItem } from 'react-native-elements';
@@ -152,7 +153,7 @@ export class SuccessScreen extends React.Component {
     }
   }
   render() {
-    Haptic.notification(Haptic.NotificationTypes.Success);
+    Vibration.vibrate(1000);
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         {/* <Video

@@ -68,7 +68,7 @@ export class HomeScreen extends React.Component {
     });
   }
   retrieveEmailAndPassword() {
-    console.log('attempting login')
+    // console.log('attempting login');
     this.setState({ 'attemptingLogin': true });
     AsyncStorage.getItem('emailAddress')
     .then((value) => {
@@ -83,12 +83,12 @@ export class HomeScreen extends React.Component {
               email: this.state.email
             });
           })
-        .catch(err, function() {
+        .catch(err => {
           console.log(err);
           this.setState({ 'attemptingLogin': false });
         })
     })
-    .catch(err, function() {
+    .catch(err => {
       console.log(err);
       this.setState({ 'attemptingLogin': false });
     })
@@ -141,6 +141,7 @@ export class HomeScreen extends React.Component {
     this.setState({capacity:null});
     this.setState({numberOfGuests:null});
     this.setState({vendorId:null});
+    clearInterval(this.timer);
     try {
       await
       AsyncStorage.setItem('promoCode', '');
@@ -174,7 +175,7 @@ export class HomeScreen extends React.Component {
           })
         }
         const diff = new Date().getTime() - new Date(+(value));
-        if(diff<1210000) {
+        if(diff<1000000) {
           AsyncStorage.getItem('promoCode')
           .then((value) => {
             console.log('promoCode: '+value);
@@ -195,6 +196,8 @@ export class HomeScreen extends React.Component {
             console.log('vendorId: '+value);
               this.setState({ 'vendorId': value })
           });
+        } else {
+          this.clearCode();
         }
       })
       this.setState({'attemptingLogin':false})
@@ -226,6 +229,8 @@ export class HomeScreen extends React.Component {
             console.log('vendorId: '+value);
               this.setState({ 'vendorId': value })
           });
+        } else {
+          this.clearCode();
         }
       })
   }

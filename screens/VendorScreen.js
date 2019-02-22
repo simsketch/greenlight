@@ -24,6 +24,7 @@ export class VendorScreen extends React.Component {
     super(props);
   }
   state = {
+    // location: {coords:{latitude:39.90671,longitude:-74.081588}},
     location: {coords:{latitude:null,longitude:null}},
     errorMessage: null,
     distanceUrl: "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=26.4614299,-80.0705547;26.5748954,-80.0777257&travelMode=driving&key=AtfrjzyT3EQQAuKMVr0h8OzC9m23-ApMCZMSwKBioRn_Go6vt6tRX-3osO8Pcm-E",
@@ -46,7 +47,6 @@ export class VendorScreen extends React.Component {
   //     });
   // }
   componentWillMount() {
-      this._getLocationAsync();
     // if (Platform.OS === 'android' && !Constants.isDevice) {
     //   this.setState({
     //     errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
@@ -75,8 +75,9 @@ export class VendorScreen extends React.Component {
   }
   componentDidMount() {
     Keyboard.dismiss();
+    this._getLocationAsync();
     this.getVendors();
-    this.timer = setInterval(()=> this.getVendors(), 3000);
+    // this.timer = setInterval(()=> this.getVendors(), 3000);
     // let fetchVendors = this._retrieveVendors();
     // setInterval(function(fetchVendors) {
     //   fetchVendors();
@@ -87,6 +88,7 @@ export class VendorScreen extends React.Component {
   }
   componentWillUnmount() {
     clearInterval(this.timer);
+    this.isCancelled = true;
   }
   signOut = (props) => {
       // AsyncStorage.setItem('emailAddress', '');
@@ -110,16 +112,22 @@ export class VendorScreen extends React.Component {
   }
   getVendors = async () => {
     // this.setState({refreshing: true});
+    // Alert.alert('Running getVendors');
     fetch('https://app.greenlightdining.com/api/vendors', {method: "GET"})
      .then((response) => response.json())
-     .then((responseData) =>
+     .then((response) =>
      {
-      this.setState({ vendors: responseData });
       // this.setState({refreshing: false});
         // console.log(responseData);
+        // Alert.alert('getVendors call successful');
+      this.setState({ vendors: response });
+      // Alert.alert(JSON.stringify(this.state.vendors[0]));
+      // Alert.alert(JSON.stringify(this.state.location));
+        console.log('vendors fetched');
      })
      .catch((error) => {
         console.log(error);
+        Alert.alert('Could not load restaurants: '+ error);
         //  this.setState({refreshing: false});
      });
    
@@ -133,7 +141,8 @@ export class VendorScreen extends React.Component {
       alert('You must enable location services for full functionality.');
     } else {
     let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location });
+    !this.isCancelled && this.setState({ location });
+    // alert(this.state.location.coords.latitude);
     // console.table(location);
     }
   };
@@ -220,40 +229,53 @@ export class VendorScreen extends React.Component {
       lng: rowData.long
     }
     let capArray = rowData.capacity.split(",");
+    // alert(capArray);
     // if (capArray==0) {alert('No tables available');}
     if(capArray==0){
-      Alert.alert(
+      alert(
         'There are no tables available presently',
-        'Please select a restaurant with their green light on.',
-        { cancelable: false }
+        'Please select a restaurant with their green light on.'
       )
       return;
     }
     if(!this.state.numberOfGuests){
-      Alert.alert(
+      alert(
         'You need to select the number of guests',
-        'Please select the number in your party before capturing a green light.',
-        { cancelable: false }
+        'Please select the number in your party using the dropdown at the top of the screen before capturing a green light.'
       )
       return;
     }
     if(!__DEV__ && this.getDistance(p1,p2)>30){
-      Alert.alert(
+      alert(
         'You are too far from the selected restaurant',
-        'Please select a restaurant closer to your location.',
-        { cancelable: false }
+        'Please select a restaurant closer to your location.'
       )
       return;
     }
     // alert(capArray);
     capArray = [...new Set(capArray)];
     // alert(capArray);
-    let newCapArray = [];
+    // let newCapArray = [];
+    let tableAvailableMatchingNumberOfGuests = false;
     for (let i=0;i<capArray.length;i++) {
-      let guests = capArray[i];
-      rowData.guests = guests;
-      newCapArray.push({text: 'Table for '+ guests, onPress: () => this.saveOrder(rowData)});
+      if (capArray[i] == this.state.numberOfGuests) {
+        tableAvailableMatchingNumberOfGuests = true;
+      }
     }
+    //re-enable this soon
+    if(!tableAvailableMatchingNumberOfGuests){
+      alert(
+        'There are no tables available for that number of guests.',
+        'Please select a restaurant with matching availability.'
+      )
+      return;
+    }
+
+    // for (let i=0;i<capArray.length;i++) {
+    //   let guests = capArray[i];
+    //   rowData.guests = guests;
+    //   newCapArray.push({text: 'Table for '+ guests, onPress: () => this.saveOrder(rowData)});
+    // }
     let okCancel = [
       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
       // {text: 'OK', onPress: () => this.props.navigation.navigate('Success', rowData)},
@@ -261,7 +283,7 @@ export class VendorScreen extends React.Component {
     if (Platform.OS === 'android') {
       okCancel.push({text: 'OK', onPress: () => this.props.navigation.navigate('Success', rowData)});
     }
-    let newArray = newCapArray.concat(okCancel);
+    // let newArray = newCapArray.concat(okCancel);
     rowData.guests = this.state.numberOfGuests;
     Alert.alert(
       'Would you like to proceed and save 10%?',
@@ -274,7 +296,7 @@ export class VendorScreen extends React.Component {
     console.log(rowData);
   }
   openLink() {
-    WebBrowser.openBrowserAsync('https://www.budweiser.com/en/home.html');
+    WebBrowser.openBrowserAsync('https://us.coca-cola.com/');
   }
   onChangeText = async (text) => {
     this.setState({
@@ -288,11 +310,12 @@ export class VendorScreen extends React.Component {
     } else if (this.state.location) {
       text = JSON.stringify(this.state.location);
     }
-    const vendors = this.state.vendors;
+    var vendors = this.state.vendors;
     // alert(text);
     const cuisinePref = this.props.navigation.getParam('cuisineState', 'All');
-    console.log(cuisinePref);
+    // console.log(cuisinePref);
     // var vendorCount = 0;
+
     var localVendors = vendors.filter((v) => {
       let p1 = {
         lat: this.state.location.coords.latitude,
@@ -312,7 +335,9 @@ export class VendorScreen extends React.Component {
       } else {
         return d<30;
       }
+      // return d<30;
     })
+
     // console.log("localVendors: "+localVendors);
     if (localVendors == "") {
       return (
@@ -323,7 +348,9 @@ export class VendorScreen extends React.Component {
         <Text style={styles.titleBar}>Please make a selection</Text>
           <Card style={{padding: 0,width:'100%'}} >
           <Dropdown
-            label='Number of Guests'
+            label='Please choose the number of guests'
+            textColor='#000'
+            fontSize={13}
             onChangeText={this.onChangeText}
             data={this.state.guestsArray}
           />
@@ -367,9 +394,12 @@ export class VendorScreen extends React.Component {
             /> */}
           <Card style={{padding: 0,width:'100%'}} >
           <Dropdown
-            label='Number of Guests'
+            label='Please choose the number of guests'
+            baseColor='#000'
+            fontSize={13}
             onChangeText={this.onChangeText}
             data={this.state.guestsArray}
+            style={{color: '#000',fontSize: 12}}
           />
           <TouchableHighlight
           onPress={()=>this.openLink()}>
@@ -403,11 +433,12 @@ export class VendorScreen extends React.Component {
                 // if(d<30) {
                 //   vendorCount = vendorCount + 1;
                 // }
-                if(__DEV__) {
+                if(__DEV__ || this.state.location.coords.latitude == null) {
                   return d;
                 } else {
                 return d<30;
                 }
+                // return d<30;
               })
               .map((v, i) => {
                 let lightOn = "#bbbbbb";
@@ -428,10 +459,10 @@ export class VendorScreen extends React.Component {
                     containerStyle={{ alignContent: 'center' }}
                     badge={{ value: 'o', textStyle: { color: 'white' }, containerStyle: { backgroundColor: lightOn, width:25 } }}
                     title={v.name}
-                    titleStyle={{marginLeft:40, fontSize: 12, fontWeight:'bold', color:'#00e676'}}
+                    titleStyle={{marginLeft:40, fontSize: 13, fontWeight:'bold', color:'#000'}}
                     subtitle={
                       <Text style={{marginLeft:40,height:60,fontSize:12}}>
-                      {tablesAvailable}{"\n"}{v.cuisine}{"\n"}{v.price}</Text>
+                      {tablesAvailable}{"\n"}{v.cuisine.split(',')[0]}{"\n"}{v.price}</Text>
                     }
                   /></TouchableHighlight>
                   // <ListItem
